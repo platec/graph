@@ -11,7 +11,8 @@ interface GlobalGraph {
   loadImage: (imageList: ImageCompConfig[]) => Promise<any>;
   load: (display: string) => Promise<any>;
   loadSymbol: (symbolList: any[]) => Promise<any>;
-  convertURL: (url: string) => string
+  convertURL: (url: string) => string;
+  unionPoint: (p1: Point, p2: Point) => Bounds | null;
 }
 
 const globalGraph: GlobalGraph = {
@@ -22,8 +23,9 @@ const globalGraph: GlobalGraph = {
   loadImage,
   load,
   loadSymbol,
-  convertURL: (url: string) => url
-}; 
+  convertURL: (url: string) => url,
+  unionPoint,
+};
 
 function setImage(name: string, image: any) {
   globalGraph.imageCache[name] = image;
@@ -73,6 +75,23 @@ async function load(display: string) {
   });
   const json = await resp.json();
   return json;
+}
+
+/**
+ * 将点组合成矩形
+ * @param p1
+ * @param p2
+ */
+function unionPoint(p1: Point, p2: Point) {
+  if (p1 && p2) {
+    return {
+      x: Math.min(p1.x, p2.x),
+      y: Math.min(p1.y, p2.y),
+      width: Math.abs(p1.x - p2.x),
+      height: Math.abs(p1.y - p2.y),
+    };
+  }
+  return null;
 }
 
 export default globalGraph;

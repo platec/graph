@@ -32,7 +32,7 @@ export default class GraphView {
     this.dataModel = dm;
     this.dataModel.on('renderAll', () => {
       this.renderAll();
-      console.log('renderAll');
+      console.info('%crenderAll', 'color: green');
     });
   }
 

@@ -197,6 +197,95 @@ export function drawImage(
 }
 
 /**
+ * 点数组转化成坐标数组
+ * @param list
+ */
+function convertListToPointList(list: number[]) {
+  const pointList = [];
+  const count = list.length;
+  for (let i = 0; i < count; i += 2) {
+    pointList.push({
+      x: list[i],
+      y: list[i + 1],
+    });
+  }
+  return pointList;
+}
+
+/**
+ * 绘制不规则图形
+ * @param ctx
+ * @param data
+ * @param comp
+ */
+export function drawShape(
+  ctx: CanvasRenderingContext2D,
+  data: Data,
+  comp: any
+) {
+  const { points, segments, closePath } = comp;
+  ctx.save();
+  setStyle(ctx, data, comp);
+  let beginPath = false;
+  ctx.beginPath();
+  const pointList = convertListToPointList(points);
+  if (segments && segments.length > 0) {
+    const count = segments.length;
+    for (let i = 0, pi = 0; i < count; i++) {
+      const segment = segments[i];
+      if (segment === 1) {
+        const point = pointList[pi++];
+        ctx.moveTo(point.x, point.y);
+      } else if (segment === 2) {
+        const point = pointList[pi++];
+        ctx.lineTo(point.x, point.y);
+      } else if (segment === 3) {
+        const cpoint = pointList[pi++];
+        const point = pointList[pi++];
+        ctx.quadraticCurveTo(
+          cpoint.x,
+          cpoint.y,
+          point.x,
+          point.y
+        );
+      } else if (segment === 4) {
+        const c1point = pointList[pi++];
+        const c2point = pointList[pi++];
+        const point = pointList[pi++];
+        ctx.bezierCurveTo(
+          c1point.x,
+          c1point.y,
+          c2point.x,
+          c2point.y,
+          point.x,
+          point.y
+        );
+      } else if (segment === 5) {
+        ctx.closePath();
+      }
+      if (closePath) {
+        ctx.closePath();
+      }
+    }
+  } else {
+    const count = pointList.length;
+    if (count > 0) {
+      let start = pointList[0];
+      ctx.moveTo(start.x, start.y);
+      for (let i = 1; i < count; i++) {
+        const point = pointList[i];
+        ctx.lineTo(point.x, point.y);
+      }
+      if (closePath) {
+        ctx.closePath();
+      }
+    }
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
  * Node绘制前预处理
  * @param ctx
  * @param data
@@ -208,12 +297,14 @@ function beforeRenderNode(
   image?: any
 ) {
   const node = <Node>data;
-  ctx.translate(node.x - node.width / 2, node.y - node.height / 2);
+  const nodeWidth = node.width || image.width;
+  const nodeHeight = node.height || image.height;
+  ctx.translate(node.x - nodeWidth / 2, node.y - nodeHeight / 2);
   if (image) {
     // 图标原始大小
     const { width, height } = image;
-    const scaleX = node.width / width;
-    const scaleY = node.height / height;
+    const scaleX = nodeWidth / width;
+    const scaleY = nodeHeight / height;
     ctx.scale(scaleX, scaleY);
   }
 }
@@ -253,6 +344,8 @@ export function drawNodeImage(
         drawText(context, data, comp);
       } else if (comp.type === 'image') {
         drawImage(context, data, comp);
+      } else if (comp.type === 'shape') {
+        drawShape(context, data, comp);
       }
     }
   }

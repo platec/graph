@@ -1,7 +1,7 @@
 {
   "v": "7.2.1-dev5",
   "p": {
-    "background": "rgb(0,0,0)",
+    "background": "rgb(15,15,15)",
     "autoAdjustIndex": true,
     "hierarchicalRendering": true
   },
@@ -12,13 +12,13 @@
   "d": [
     {
       "c": "Node",
-      "i": 416,
+      "i": 1802,
       "p": {
         "displayName": "image",
         "image": "symbols/demo/image.json",
         "position": {
-          "x": 744.60055,
-          "y": 667.88941
+          "x": 1562.00673,
+          "y": 749.45279
         },
         "width": 352.19811,
         "height": 352.19811
@@ -26,42 +26,42 @@
     },
     {
       "c": "Node",
-      "i": 412,
+      "i": 1803,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 1229.88969,
-          "y": 326.67672
+          "x": 965.48281,
+          "y": 122.76688
         },
-        "width": 517.29928,
-        "height": 517.29928
+        "width": 245.53377,
+        "height": 245.53377
       }
     },
     {
       "c": "Node",
-      "i": 413,
+      "i": 1804,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 294.34574,
-          "y": 337.42595
+          "x": 301.04575,
+          "y": 645.40386
         },
-        "width": 517.29928,
-        "height": 517.29928,
+        "width": 256.20915,
+        "height": 256.20915,
         "tall": 20
       }
     },
     {
       "c": "Edge",
-      "i": 415,
+      "i": 1805,
       "p": {
         "source": {
-          "__i": 412
+          "__i": 1803
         },
         "target": {
-          "__i": 413
+          "__i": 1804
         }
       },
       "s": {
@@ -71,20 +71,20 @@
     },
     {
       "c": "Node",
-      "i": 14792,
+      "i": 1806,
       "p": {
         "displayName": "album",
         "image": "symbols/demo/album.json",
         "position": {
-          "x": 1238.28621,
-          "y": 549.95649
+          "x": 1534.17388,
+          "y": 148.2662
         },
-        "width": 534.09232,
-        "height": 534.09232
+        "width": 296.53241,
+        "height": 296.53241
       }
     }
   ],
-  "modified": "Sat Aug 28 2021 11:06:11 GMT+0800 (中国标准时间)",
+  "modified": "Sat Aug 28 2021 14:10:03 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": 0,
     "y": 0,
