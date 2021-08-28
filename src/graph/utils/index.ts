@@ -6,6 +6,12 @@ import Node from '../Node';
 import Edge from '../Edge';
 import graph from '../Global';
 
+/**
+ * 图形样式设置
+ * @param ctx
+ * @param data
+ * @param comp
+ */
 function setStyle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   if (comp.background !== undefined) {
     ctx.fillStyle = comp.background;
@@ -35,7 +41,7 @@ function strokeAndFill(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
 }
 
 /**
- * 画矩形
+ * 绘制矩形
  * @param ctx
  * @param data
  * @param comp
@@ -52,7 +58,7 @@ function drawRect(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
 }
 
 /**
- * 画圆
+ * 绘制圆
  * @param ctx
  * @param data
  * @param comp
@@ -61,23 +67,16 @@ function drawCircle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   ctx.save();
   const [x, y, width, height] = comp.rect;
   setStyle(ctx, data, comp);
-  const radius = Math.floor(Math.min(width, height) / 2);
+  const radius = Math.min(width, height) / 2;
   ctx.beginPath();
-  ctx.arc(
-    Math.floor(x + width / 2),
-    Math.floor(y + height / 2),
-    radius,
-    0,
-    Math.PI * 2,
-    true
-  );
+  ctx.arc(x + width / 2, y + height / 2, radius, 0, Math.PI * 2, true);
   ctx.closePath();
   strokeAndFill(ctx, data, comp);
   ctx.restore();
 }
 
 /**
- * 画椭圆
+ * 绘制椭圆
  * @param ctx
  * @param data
  * @param comp
@@ -95,7 +94,6 @@ function drawOval(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   ctx.arc(x + radiusX, (y + radiusY) / scaleY, radiusX, 0, Math.PI * 2, true);
   ctx.closePath();
   ctx.restore();
-
   ctx.save();
   setStyle(ctx, data, comp);
   strokeAndFill(ctx, data, comp);
@@ -149,7 +147,7 @@ function drawText(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
 }
 
 /**
- * 画连线
+ * 绘制连线
  * @param ctx
  * @param data
  */
@@ -170,7 +168,7 @@ export function drawEdge(ctx: CanvasRenderingContext2D, data: Data) {
 }
 
 /**
- * 画图片
+ * 绘制图片
  * @param ctx
  * @param data
  * @param comp
@@ -226,7 +224,6 @@ export function drawShape(
   const { points, segments, closePath } = comp;
   ctx.save();
   setStyle(ctx, data, comp);
-  let beginPath = false;
   ctx.beginPath();
   const pointList = convertListToPointList(points);
   if (segments && segments.length > 0) {
@@ -242,12 +239,7 @@ export function drawShape(
       } else if (segment === 3) {
         const cpoint = pointList[pi++];
         const point = pointList[pi++];
-        ctx.quadraticCurveTo(
-          cpoint.x,
-          cpoint.y,
-          point.x,
-          point.y
-        );
+        ctx.quadraticCurveTo(cpoint.x, cpoint.y, point.x, point.y);
       } else if (segment === 4) {
         const c1point = pointList[pi++];
         const c2point = pointList[pi++];
@@ -281,7 +273,59 @@ export function drawShape(
       }
     }
   }
+  if (comp.borderWidth) {
+    ctx.stroke();
+  }
+  // 填充颜色
+  if (comp.background) {
+    if (comp.fillRule !== undefined) {
+      ctx.fill(comp.fillRule);
+    } else {
+      ctx.fill(Constants.defaultFillRule);
+    }
+  }
+  ctx.restore();
+}
+
+/**
+ * 绘制三角形
+ * @param ctx
+ * @param data
+ * @param comp
+ */
+function drawTriangle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+  ctx.save();
+  setStyle(ctx, data, comp);
+  ctx.beginPath();
+  const [x, y, width, height] = comp.rect;
+  ctx.moveTo(x + width / 2, y);
+  ctx.lineTo(x + width, y + height);
+  ctx.lineTo(x, y + height);
+  ctx.lineTo(x + width / 2, y);
+  ctx.closePath();
   ctx.stroke();
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * 绘制圆弧
+ * @param ctx
+ * @param data
+ * @param comp
+ */
+function drawArc(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+  ctx.save();
+  const { arcFrom, arcTo, arcClose } = comp;
+  const [x, y, width, height] = comp.rect;
+  const radius = Math.min(width, height) / 2;
+  setStyle(ctx, data, comp);
+  ctx.beginPath();
+  ctx.arc(x + width / 2, y + height / 2, radius, arcFrom, arcTo);
+  if (arcClose) {
+    ctx.closePath();
+  }
+  strokeAndFill(ctx, data, comp);
   ctx.restore();
 }
 
@@ -334,18 +378,31 @@ export function drawNodeImage(
     context.save();
     beforeRenderNode(context, data, image);
     for (let comp of comps) {
-      if (comp.type === 'rect') {
-        drawRect(context, data, comp);
-      } else if (comp.type === 'circle') {
-        drawCircle(context, data, comp);
-      } else if (comp.type === 'oval') {
-        drawOval(context, data, comp);
-      } else if (comp.type === 'text') {
-        drawText(context, data, comp);
-      } else if (comp.type === 'image') {
-        drawImage(context, data, comp);
-      } else if (comp.type === 'shape') {
-        drawShape(context, data, comp);
+      switch (comp.type) {
+        case 'rect':
+          drawRect(context, data, comp);
+          break;
+        case 'circle':
+          drawCircle(context, data, comp);
+          break;
+        case 'oval':
+          drawOval(context, data, comp);
+          break;
+        case 'text':
+          drawText(context, data, comp);
+          break;
+        case 'image':
+          drawImage(context, data, comp);
+          break;
+        case 'shape':
+          drawShape(context, data, comp);
+          break;
+        case 'triangle':
+          drawTriangle(context, data, comp);
+          break;
+        case 'arc':
+          drawArc(context, data, comp);
+          break;
       }
     }
   }

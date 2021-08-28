@@ -1,7 +1,6 @@
 {
   "v": "7.2.1-dev5",
   "p": {
-    "background": "rgb(15,15,15)",
     "autoAdjustIndex": true,
     "hierarchicalRendering": true
   },
@@ -12,7 +11,7 @@
   "d": [
     {
       "c": "Node",
-      "i": 1802,
+      "i": 842,
       "p": {
         "displayName": "image",
         "image": "symbols/demo/image.json",
@@ -26,7 +25,7 @@
     },
     {
       "c": "Node",
-      "i": 1803,
+      "i": 843,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
@@ -40,7 +39,7 @@
     },
     {
       "c": "Node",
-      "i": 1804,
+      "i": 844,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
@@ -55,13 +54,13 @@
     },
     {
       "c": "Edge",
-      "i": 1805,
+      "i": 845,
       "p": {
         "source": {
-          "__i": 1803
+          "__i": 843
         },
         "target": {
-          "__i": 1804
+          "__i": 844
         }
       },
       "s": {
@@ -71,7 +70,7 @@
     },
     {
       "c": "Node",
-      "i": 1806,
+      "i": 846,
       "p": {
         "displayName": "album",
         "image": "symbols/demo/album.json",
@@ -82,9 +81,67 @@
         "width": 296.53241,
         "height": 296.53241
       }
+    },
+    {
+      "c": "Node",
+      "i": 6354,
+      "p": {
+        "displayName": "test",
+        "image": "symbols/demo/test.json",
+        "position": {
+          "x": 821.81699,
+          "y": 853.34504
+        },
+        "width": 490.41394,
+        "height": 343.28976
+      }
+    },
+    {
+      "c": "Node",
+      "i": 6451,
+      "p": {
+        "displayName": "test3",
+        "image": "symbols/demo/test3.json",
+        "position": {
+          "x": 1150.54902,
+          "y": 366.00436
+        },
+        "width": 260.99346,
+        "height": 347.99129
+      }
+    },
+    {
+      "c": "Edge",
+      "i": 6843,
+      "p": {
+        "source": {
+          "__i": 6451
+        },
+        "target": {
+          "__i": 6354
+        }
+      },
+      "s": {
+        "edge.color": "#009687",
+        "edge.width": 1
+      }
+    },
+    {
+      "c": "Node",
+      "i": 10549,
+      "p": {
+        "displayName": "test4",
+        "image": "symbols/demo/test4.json",
+        "position": {
+          "x": 907.45807,
+          "y": 526.72844
+        },
+        "width": 203.22522,
+        "height": 270.96696
+      }
     }
   ],
-  "modified": "Sat Aug 28 2021 14:10:03 GMT+0800 (中国标准时间)",
+  "modified": "Sat Aug 28 2021 18:21:04 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": 0,
     "y": 0,

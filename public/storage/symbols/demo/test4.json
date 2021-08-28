@@ -1,0 +1,71 @@
+{
+  "modified": "Sat Aug 28 2021 19:06:34 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "powerLevel",
+      "valueType": "PowerLevel",
+      "defaultValue": "red",
+      "name": "电压等级"
+    },
+    {
+      "attr": "powerOffColor",
+      "valueType": "Color",
+      "defaultValue": "rgb(128,128,128)",
+      "name": "失电颜色"
+    },
+    {
+      "attr": "powerOn",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "是否带电"
+    }
+  ],
+  "gridBlockSize": 6,
+  "width": 48,
+  "height": 64,
+  "pixelPerfect": false,
+  "comps": [
+    {
+      "type": "arc",
+      "borderWidth": 2,
+      "borderColor": "rgb(250,0,0)",
+      "borderCap": "round",
+      "arcFrom": 0,
+      "arcTo": 3.14159,
+      "arcClose": false,
+      "displayName": "1",
+      "rect": [
+        14.08455,
+        16.25674,
+        19.83089,
+        19.83089
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(250,0,0)",
+      "displayName": "1",
+      "points": [
+        24,
+        64.02852,
+        24,
+        36.08763
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(250,0,0)",
+      "displayName": "1",
+      "points": [
+        13.17104,
+        26.59881,
+        24,
+        26.59881,
+        24,
+        0
+      ]
+    }
+  ]
+}
