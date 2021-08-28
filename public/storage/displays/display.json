@@ -1,0 +1,90 @@
+{
+  "v": "7.2.1-dev5",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "Node",
+      "i": 417,
+      "p": {
+        "displayName": "test2",
+        "image": "symbols/demo/test2.json",
+        "position": {
+          "x": 412.87669,
+          "y": 395.74372
+        },
+        "width": 517.29928,
+        "height": 517.29928
+      }
+    },
+    {
+      "c": "Node",
+      "i": 418,
+      "p": {
+        "displayName": "test2",
+        "image": "symbols/demo/test2.json",
+        "position": {
+          "x": 954.07758,
+          "y": 791.7804
+        },
+        "width": 517.29928,
+        "height": 517.29928,
+        "tall": 20
+      }
+    },
+    {
+      "c": "Node",
+      "i": 419,
+      "p": {
+        "displayName": "test",
+        "image": "symbols/demo/test.json",
+        "position": {
+          "x": 369.97257,
+          "y": 654.39336
+        },
+        "width": 317.70061,
+        "height": 317.70061
+      }
+    },
+    {
+      "c": "Edge",
+      "i": 420,
+      "p": {
+        "source": {
+          "__i": 417
+        },
+        "target": {
+          "__i": 418
+        }
+      },
+      "s": {
+        "edge.color": "#009687",
+        "edge.width": 1
+      }
+    },
+    {
+      "c": "Node",
+      "i": 421,
+      "p": {
+        "displayName": "image",
+        "image": "symbols/demo/image.json",
+        "position": {
+          "x": 618.55996,
+          "y": 533.13076
+        },
+        "width": 352.19811,
+        "height": 352.19811
+      }
+    }
+  ],
+  "modified": "Sat Aug 28 2021 09:21:13 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": 154.22705,
+    "y": 137.09408,
+    "width": 1058.50017,
+    "height": 913.33596
+  }
+}
