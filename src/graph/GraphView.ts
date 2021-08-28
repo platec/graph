@@ -18,6 +18,7 @@ export default class GraphView {
   context!: CanvasRenderingContext2D;
   container!: HTMLElement;
   dataModel?: DataModel;
+
   private ro!: any;
 
   constructor(options: GraphViewOptions) {
@@ -29,9 +30,9 @@ export default class GraphView {
 
   setDataModel(dm: DataModel) {
     this.dataModel = dm;
-    this.dataModel.on('dataChange', () => {
+    this.dataModel.on('renderAll', () => {
       this.renderAll();
-      console.log('renderAll')
+      console.log('renderAll');
     });
   }
 
@@ -65,7 +66,7 @@ export default class GraphView {
         this.dataModel.setSelection(selection);
       }
 
-      document.body.addEventListener('mousemove', onMouseMove, false);
+      document.addEventListener('mousemove', onMouseMove, false);
     };
     const onMouseMove = (e: MouseEvent) => {
       if (this.dataModel) {
@@ -81,10 +82,10 @@ export default class GraphView {
       }
     };
     const onMouseUp = (e: MouseEvent) => {
-      document.body.removeEventListener('mousemove', onMouseMove, false);
+      document.removeEventListener('mousemove', onMouseMove, false);
     };
-    document.body.addEventListener('mousedown', onMouseDown, false);
-    document.body.addEventListener('mouseup', onMouseUp, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
 
     const onMouseover = (event: MouseEvent) => {
       const position = getEventPosition(this.canvas, event);
@@ -112,7 +113,7 @@ export default class GraphView {
     this.canvas.addEventListener('mousemove', onMouseover, false);
   }
 
-  private async renderNodes() {
+  async renderAll() {
     if (this.dataModel) {
       const datas = this.dataModel.getDatas();
       const imageToLoad = [];
@@ -122,11 +123,16 @@ export default class GraphView {
           imageToLoad.push(node.image);
         }
       }
-      if (imageToLoad.length > 0) {
-        await graph.loadSymbol(imageToLoad);
-      }
       this.context.save();
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      if (this.dataModel.background) {
+        this.context.fillStyle = this.dataModel.background;
+        this.context.fillRect(0, 0 ,this.canvas.width, this.canvas.height);
+        this.context.restore();
+      }
+      if (imageToLoad.length > 0) {
+        await graph.loadSymbol(imageToLoad);
+      }      
       for (let data of datas) {
         if (data.className === 'Node') {
           const node = <Node>data;
@@ -157,13 +163,11 @@ export default class GraphView {
     }
   }
 
-  renderAll() {
-    this.renderNodes();
+  requestRenderAll() {
+    setTimeout(this.renderAll.bind(this), 0);
   }
 
-  requestRenderAll() {
-    setTimeout(this.renderNodes.bind(this), 0);
-  }
+  fitContent() {}
 
   mount(el: HTMLElement) {
     this.container = el || document.body;

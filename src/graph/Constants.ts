@@ -1,8 +1,9 @@
-export default {
-  defaultBorderColor: 'black',
-  defaultBackgroundColor: '#cfcfcf',
-  defaultBorderWidth: 1,
-  defaultFont: '12px arial, sans-serif',
-  defaultAlign: 'left',
-  defaultVAlign: 'middle'
+export default class Constants {
+  static defaultBorderColor = 'black';
+  static defaultBackgroundColor = '#cfcfcf';
+  static defaultBorderWidth = 1;
+  static defaultFont = '12px arial, sans-serif';
+  static defaultAlign = 'left';
+  static defaultVAlign = 'middle';
+  static defaultBorderJoin : CanvasLineJoin = 'round';
 }

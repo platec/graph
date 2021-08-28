@@ -38,7 +38,7 @@ async function loadImage(imageList: ImageCompConfig[]) {
     return new Promise((resolve: (p: void) => void) => {
       const img = new Image();
       img.onload = () => {
-        if (image.name.startsWith('data:image/png;base64')) {
+        if (image.name.startsWith('data:image')) {
           setImage(image.displayName, img);
         } else {
           setImage(image.name, img);

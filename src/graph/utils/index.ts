@@ -7,18 +7,23 @@ import Edge from '../Edge';
 import graph from '../Global';
 
 function setStyle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
-  if (comp.background === undefined) {
-    ctx.fillStyle = Constants.defaultBackgroundColor;
-  } else {
+  if (comp.background !== undefined) {
     ctx.fillStyle = comp.background;
-  }
-  if (comp.borderColor === undefined) {
-    ctx.strokeStyle = Constants.defaultBorderColor;
   } else {
+    ctx.fillStyle = Constants.defaultBackgroundColor;
+  }
+  if (comp.borderColor !== undefined) {
     ctx.strokeStyle = comp.borderColor;
+  } else {
+    ctx.strokeStyle = Constants.defaultBorderColor;
   }
   if (comp.borderWidth !== undefined) {
     ctx.lineWidth = comp.borderWidth;
+  }
+  if (comp.borderJoin !== undefined) {
+    ctx.lineJoin = comp.borderJoin;
+  } else {
+    ctx.lineJoin = Constants.defaultBorderJoin;
   }
 }
 
@@ -122,6 +127,7 @@ export const getTextSize = (function () {
  */
 function drawText(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   ctx.save();
+  // TODO
   const [x, y, width, height] = comp.rect;
   const { text, font } = comp;
   ctx.font = font || Constants.defaultFont;
@@ -178,7 +184,7 @@ export function drawImage(
   const [x, y, width, height] = comp.rect;
   const { name, displayName } = comp;
   let cacheName;
-  if (name.startsWith('data:image/png;base64')) {
+  if (name.startsWith('data:image')) {
     cacheName = displayName;
   } else {
     cacheName = name;
@@ -260,7 +266,12 @@ export function drawSlection(gv: GraphView, node: Node) {
   const context = gv.context;
   context.save();
   context.beginPath();
-  context.rect(node.x - node.width / 2, node.y - node.height /2, node.width, node.height);
+  context.rect(
+    node.x - node.width / 2,
+    node.y - node.height / 2,
+    node.width,
+    node.height
+  );
   context.scale(0.5, 0.5);
   context.strokeStyle = '#60ACFC';
   context.stroke();
@@ -300,7 +311,7 @@ export function containsPoint(bounds: Bounds, x: number, y: number) {
 
 /**
  * 根据配置生成Node对象
- * @param d 
+ * @param d
  */
 export function generateNode(d: any) {
   const property = d.p;
@@ -346,3 +357,8 @@ export function extend(destination: any, source: any, deep?: boolean) {
   }
   return destination;
 }
+
+export const uuid = (() => {
+  let id = 0;
+  return () => ++id;
+})();

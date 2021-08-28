@@ -3,30 +3,53 @@ import Node from './Node';
 import Notifier from './Notifier';
 import global from './Global';
 import Edge from './Edge';
-import { generateNode } from './utils';
+import { generateNode, uuid } from './utils';
 
 export default class DataModel extends Notifier {
   private dataList: Data[] = [];
   private selectedDataList: Data[] = [];
   private imageLoaded = false; // 图标全部加载完毕
   private idMap = new Map<number, Data>();
+  private lastId?: number;
+  private _backgrond?: string | undefined;
 
   constructor() {
     super();
   }
 
+  set background(bg: string | undefined) {
+    this._backgrond = bg;
+    this.emitNextTick('renderAll');
+  }
+
+  get background(): string | undefined {
+    return this._backgrond;
+  }
+
   add(data: Data) {
     data.dataModel = this;
+    if (!data.id) {
+      if (this.lastId) {
+        this.lastId += 1;
+        data.id = this.lastId;
+      } else {
+        data.id = uuid();
+        this.lastId = data.id;
+      }
+    } else {
+      this.lastId = data.id;
+    }
     // 检查是否有image且image是否有缓存
     this.dataList.push(data);
     this.idMap.set(data.id, data);
     // update canvas
-    this.emitNextTick('dataChange');
+    this.emitNextTick('renderAll');
   }
 
   setDatas(datas: Data[]) {
-    this.dataList = datas;
-    this.emitNextTick('dataChange');
+    for (const data of datas) {
+      this.add(data);
+    }
   }
 
   getDataById(id: number) {
@@ -44,12 +67,16 @@ export default class DataModel extends Notifier {
   setSelection(datas: Data[]) {
     this.selectedDataList = datas;
     // update canvas next tick
-    this.emitNextTick('dataChange');
+    this.emitNextTick('renderAll');
   }
 
   deserialize(json: any) {
     this.imageLoaded = false;
     const datas = <any[]>json.d;
+    const dataModelProperty = <any>json.p;
+    if (dataModelProperty) {
+      this.background = dataModelProperty.background;
+    }
     const dataCount = datas.length;
     if (dataCount > 0) {
       const nodeList: any[] = new Array(dataCount).fill(null);

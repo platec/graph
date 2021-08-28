@@ -18,7 +18,7 @@ export default class Data {
 
   changeData() {
     if (this.dataModel) {
-      this.dataModel.emitNextTick('dataChange');
+      this.dataModel.emitNextTick('renderAll');
     }
   }
 }
