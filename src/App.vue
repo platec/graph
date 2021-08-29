@@ -30,7 +30,7 @@ export default defineComponent({
     node.y = 200;
     node.width = 352.19811;
     node.height = 352.19811;
-    // dm.add(node);
+    dm.add(node);
     
     gv.mount(this.$el);
 

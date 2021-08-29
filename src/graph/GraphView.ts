@@ -169,7 +169,7 @@ export default class GraphView {
   }
 
   requestRenderAll() {
-    setTimeout(this.renderAll.bind(this), 0);
+    requestAnimationFrame(this.renderAll.bind(this));
   }
 
   fitContent() {}
@@ -188,7 +188,7 @@ export default class GraphView {
         this.canvas.style.width = canvasWidth + 'px';
         this.canvas.style.height = canvasHeight + 'px';
         // TODO nexttick
-        this.renderAll();
+        this.requestRenderAll();
         // TODO broadcast resize event
       }
     });

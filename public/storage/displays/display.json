@@ -8,13 +8,13 @@
   "d": [
     {
       "c": "Edge",
-      "i": 492,
+      "i": 4011,
       "p": {
         "source": {
-          "__i": 497
+          "__i": 4016
         },
         "target": {
-          "__i": 495
+          "__i": 4014
         }
       },
       "s": {
@@ -73,13 +73,13 @@
     },
     {
       "c": "Edge",
-      "i": 493,
+      "i": 4012,
       "p": {
         "source": {
-          "__i": 496
+          "__i": 4015
         },
         "target": {
-          "__i": 497
+          "__i": 4016
         }
       },
       "s": {
@@ -89,13 +89,13 @@
     },
     {
       "c": "Edge",
-      "i": 494,
+      "i": 4013,
       "p": {
         "source": {
-          "__i": 496
+          "__i": 4015
         },
         "target": {
-          "__i": 495
+          "__i": 4014
         }
       },
       "s": {
@@ -131,13 +131,13 @@
     },
     {
       "c": "Node",
-      "i": 495,
+      "i": 4014,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 1644.64875,
-          "y": 607.70408
+          "x": 418.88163,
+          "y": 926.10735
         },
         "width": 139.02494,
         "height": 139.02494
@@ -145,7 +145,7 @@
     },
     {
       "c": "Node",
-      "i": 496,
+      "i": 4015,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
@@ -160,7 +160,7 @@
     },
     {
       "c": "Node",
-      "i": 497,
+      "i": 4016,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
@@ -174,73 +174,8 @@
       }
     },
     {
-      "c": "Edge",
-      "i": 523,
-      "p": {
-        "source": {
-          "__i": 524
-        },
-        "target": {
-          "__i": 525
-        }
-      },
-      "s": {
-        "edge.color": "rgb(0,199,7)",
-        "edge.width": 12,
-        "edge.type": "points",
-        "edge.segments": {
-          "__a": [
-            1,
-            2,
-            2
-          ]
-        },
-        "edge.points": {
-          "__a": [
-            {
-              "x": 490.30367,
-              "y": 232.72719
-            }
-          ]
-        },
-        "edge.source.anchor.x": 0.5,
-        "edge.source.anchor.y": 0.5,
-        "edge.target.anchor.x": 0.5,
-        "edge.target.anchor.y": 0.5
-      }
-    },
-    {
       "c": "Node",
-      "i": 524,
-      "p": {
-        "displayName": "image",
-        "image": "symbols/demo/image.json",
-        "position": {
-          "x": 513.73973,
-          "y": 468.00537
-        },
-        "width": 279.39742,
-        "height": 279.39742
-      }
-    },
-    {
-      "c": "Node",
-      "i": 525,
-      "p": {
-        "displayName": "image",
-        "image": "symbols/demo/image.json",
-        "position": {
-          "x": 1006.10226,
-          "y": 398.4929
-        },
-        "width": 279.39742,
-        "height": 279.39742,
-        "tall": 20
-      }
-    },
-    {
-      "c": "Node",
-      "i": 1726,
+      "i": 4017,
       "p": {
         "displayName": "test4",
         "image": "symbols/demo/test4.json",
@@ -254,7 +189,7 @@
     },
     {
       "c": "Node",
-      "i": 2114,
+      "i": 4018,
       "p": {
         "displayName": "test3",
         "image": "symbols/demo/test3.json",
@@ -268,24 +203,38 @@
     },
     {
       "c": "Node",
-      "i": 2486,
+      "i": 4019,
       "p": {
         "displayName": "test",
         "image": "symbols/demo/test.json",
         "position": {
-          "x": 1409.01744,
-          "y": 284.07431
+          "x": 923.03321,
+          "y": 362.24887
         },
         "width": 526.43295,
         "height": 368.50306
       }
+    },
+    {
+      "c": "Node",
+      "i": 6810,
+      "p": {
+        "displayName": "text",
+        "image": "symbols/demo/text.json",
+        "position": {
+          "x": 1421.2201,
+          "y": 498.37343
+        },
+        "width": 412.5685,
+        "height": 218.66131
+      }
     }
   ],
-  "modified": "Sun Aug 29 2021 09:56:06 GMT+0800 (中国标准时间)",
+  "modified": "Sun Aug 29 2021 11:47:17 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": 239.47766,
-    "y": 99.82278,
-    "width": 1474.68356,
-    "height": 847.62872
+    "y": 128.73574,
+    "width": 1388.02669,
+    "height": 866.88408
   }
 }

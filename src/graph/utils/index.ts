@@ -125,22 +125,31 @@ export const getTextSize = (function () {
  */
 function drawText(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   ctx.save();
-  // TODO
   const [x, y, width, height] = comp.rect;
-  const { text, font } = comp;
+  let { text, font, color, align, vAlign } = comp;
   ctx.font = font || Constants.defaultFont;
   const size = getTextSize(ctx.font, text);
-  ctx.textAlign = comp.align || Constants.defaultAlign;
-  ctx.textBaseline = comp.vAlign || Constants.defaultVAlign;
-  let textX, textY;
-  if (width === undefined) {
-    textX = x;
-    textY = y;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color || Constants.defaultFontColor;
+  vAlign = vAlign || Constants.defaultVAlign;
+  align = align || Constants.defaultAlign;
+  color = color || Constants.defaultFontColor;
+  text = text || Constants.defaultText;
+  let textX = 0, textY = 0;
+  if (vAlign === 'top') {
+    textY = y + size.height / 2;
+  } else if (vAlign === 'middle') {
+    textY = y + height / 2;
+  } else {
+    textY = y + height - size.height / 2;
+  }
+  if (align === 'right') {
+    textX = x + width - size.width / 2;
+  } else if (align === 'left') {
+    textX = x + size.width / 2;
   } else {
     textX = x + width / 2;
-    textY = y + height / 2;
-    // textX = x;
-    // textY = y;
   }
   ctx.fillText(text, textX, textY);
   ctx.restore();
