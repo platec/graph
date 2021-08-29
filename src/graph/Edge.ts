@@ -21,9 +21,9 @@ export function getEdgeStyle(styleMap: any) {
 
 export default class Edge extends Data {
   readonly className = 'Edge';
-  private styleMap = new Map();
-  private source?: Data;
-  private target?: Data;
+  private _styleMap = new Map();
+  private _source?: Data;
+  private _target?: Data;
 
   constructor() {
     super();
@@ -31,35 +31,35 @@ export default class Edge extends Data {
 
   setStyle(style: any, value?: any) {
     if (value !== undefined && typeof style === 'string') {
-      this.styleMap.set(style, value);
+      this._styleMap.set(style, value);
     }
     if (style && Object.keys(style).length > 0) {
       for (const key in style) {
-        this.styleMap.set(key, style[key]);
+        this._styleMap.set(key, style[key]);
       }
     }
     this.changeData();
   }
 
   getStyle(name: string) {
-    return this.styleMap.get(name);
+    return this._styleMap.get(name);
   }
 
   setSource(data: Data) {
-    this.source = data;
+    this._source = data;
     this.changeData();
   }
 
   setTarget(data: Data) {
-    this.target = data;
+    this._target = data;
     this.changeData();
   }
 
   getSource() {
-    return this.source;
+    return this._source;
   }
 
   getTarget() {
-    return this.target;
+    return this._target;
   }
 }

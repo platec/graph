@@ -5,9 +5,11 @@ import {
   getEventPosition,
   drawSlection,
   drawEdge,
+  drawDisplayText,
 } from './utils';
 import Node from './Node';
 import List from './List';
+import Data from './Data';
 import graph from './Global';
 
 export interface GraphViewOptions {
@@ -51,20 +53,27 @@ export default class GraphView {
         let selectedNode;
         for (let i = 0; i < datas.size(); i++) {
           const data = datas.get(i);
-          if (data.className === 'Node') {
-            const node = <Node>datas.get(i);
-            const bounds = node.getBounds();
+          if (data.className !== 'Edge') {
+            // @ts-ignore
+            const bounds = data.getBounds();
             if (containsPoint(bounds, position.x, position.y)) {
-              offset.x = position.x - node.x;
-              offset.y = position.y - node.y;
-              selectedNode = node;
-            }
+              // @ts-ignore
+              offset.x = position.x - data.x;
+              // @ts-ignore
+              offset.y = position.y - data.y;
+              selectedNode = data;
+            }            
           }
         }
         if (selectedNode) {
           selection.push(selectedNode);
         }
-        this.dataModel.setSelection(selection);
+        if (
+          this.dataModel.getSelection().size() !== 0 ||
+          selection.length !== 0
+        ) {
+          this.dataModel.setSelection(selection);
+        }
       }
 
       document.addEventListener('mousemove', onMouseMove, false);
@@ -93,15 +102,15 @@ export default class GraphView {
     const onMouseover = (event: MouseEvent) => {
       const position = getEventPosition(this.canvas, event);
       if (this.dataModel) {
-        const datas = <List<Node>>this.dataModel.getDatas();
+        const datas = <List<Data>>this.dataModel.getDatas();
         let selectedNode;
         for (let i = 0; i < datas.size(); i++) {
           const data = datas.get(i);
-          if (data.className === 'Node') {
-            const node = datas.get(i);
-            const bounds = node.getBounds();
+          if (data.className !== 'Edge') {
+            // @ts-ignore
+            const bounds = data.getBounds();
             if (containsPoint(bounds, position.x, position.y)) {
-              selectedNode = node;
+              selectedNode = data;
               break;
             }
           }
@@ -139,30 +148,39 @@ export default class GraphView {
       const size = datas.size();
       for (let i = 0; i < size; i++) {
         const data = datas.get(i);
-        if (data.className === 'Node') {
+        const className = data.className;
+        if (className === 'Node') {
           const node = <Node>data;
-          const imageURL = node.image;
-          const image = graph.getImage(imageURL);
-          // 图标内容
-          const comps = <any[]>image.comps;
-          if (comps.length) {
-            if (!node.imageLoaded) {
-              // 检查图标中是否有图片
-              const imageList = comps.filter((v) => v.type === 'image');
-              if (imageList.length > 0) {
-                await graph.loadImage(Array.from(new Set(imageList)));
-                node.imageLoaded = true;
+          if (node.image) {
+            const imageURL = node.image;
+            const image = graph.getImage(imageURL);
+            // 图标内容
+            const comps = <any[]>image.comps;
+            if (comps.length) {
+              if (!node.imageLoaded) {
+                // 检查图标中是否有图片
+                const imageList = comps.filter((v) => v.type === 'image');
+                if (imageList.length > 0) {
+                  await graph.loadImage(Array.from(new Set(imageList)));
+                  node.imageLoaded = true;
+                }
               }
+              drawNodeImage(this, this.dataModel, node, image);
             }
-            drawNodeImage(this, this.dataModel, node, image);
+          } else {
+            drawNodeImage(this, this.dataModel, node);
           }
         } else if (data.className === 'Edge') {
           drawEdge(this.context, data);
+        } else if (className === 'Text') {
+          drawDisplayText(this.context, data);
         }
       }
-      const selection = <List<Node>>this.dataModel.getSelection();
-      selection.each((node) => {
-        drawSlection(this, <Node>node);
+      const selection = <List<Data>>this.dataModel.getSelection();
+      selection.each((data) => {
+        if (data) {
+          drawSlection(this, data);
+        }
       });
       this.context.restore();
     }

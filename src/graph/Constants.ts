@@ -6,6 +6,7 @@ export default class Constants {
   static defaultAlign: CanvasTextAlign = 'left';
   static defaultVAlign: CanvasTextBaseline = 'middle';
   static defaultBorderJoin : CanvasLineJoin = 'round';
+  static defaultBorderCap: CanvasLineCap = 'butt';
   static defaultFillRule: CanvasFillRule = 'evenodd';
   static defaultFontColor = 'black';
   static defaultText = 'graph'

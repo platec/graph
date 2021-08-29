@@ -1,13 +1,11 @@
 import Data from './Data';
 
-export default class Node extends Data {
-  readonly className = 'Node';
+export default class Text extends Data {
+  readonly className = 'Text';
   private _x = 0;
   private _y = 0;
   private _width = 0;
   private _height = 0;
-  private _image = '';
-  private _imageLoaded = false;
   private _styleMap = new Map();
 
   constructor() {
@@ -48,23 +46,6 @@ export default class Node extends Data {
   public set height(height) {
     this._height = height;
     this.changeData();
-  }
-
-  public get image() {
-    return this._image;
-  }
-
-  public set image(image) {
-    this._image = image;
-    this.changeData();
-  }
-
-  public get imageLoaded() {
-    return this._imageLoaded;
-  }
-
-  public set imageLoaded(loaded) {
-    this._imageLoaded = loaded;
   }
 
   public getBounds() {

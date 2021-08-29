@@ -4,38 +4,52 @@ import GraphView from '../GraphView';
 import Constants from '../Constants';
 import Node from '../Node';
 import Edge from '../Edge';
+import Text from '../Text';
 import graph from '../Global';
 
 /**
- * 图形样式设置
+ * 图标内图形样式设置
  * @param ctx
  * @param data
  * @param comp
  */
-function setStyle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
-  if (comp.background !== undefined) {
-    ctx.fillStyle = comp.background;
+function setStyle(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
+  if (comp) {
+    ctx.fillStyle = comp.background || Constants.defaultBackgroundColor;
+    ctx.strokeStyle = comp.borderColor || Constants.defaultBorderColor;
+    if (comp.borderWidth !== undefined) {
+      ctx.lineWidth = comp.borderWidth;
+    }
+    ctx.lineJoin = comp.borderJoin || Constants.defaultBorderJoin;
+    ctx.lineCap = comp.borderCap || Constants.defaultBorderCap;
   } else {
-    ctx.fillStyle = Constants.defaultBackgroundColor;
-  }
-  if (comp.borderColor !== undefined) {
-    ctx.strokeStyle = comp.borderColor;
-  } else {
-    ctx.strokeStyle = Constants.defaultBorderColor;
-  }
-  if (comp.borderWidth !== undefined) {
-    ctx.lineWidth = comp.borderWidth;
-  }
-  if (comp.borderJoin !== undefined) {
-    ctx.lineJoin = comp.borderJoin;
-  } else {
-    ctx.lineJoin = Constants.defaultBorderJoin;
+    const node = <Node>data;
+    ctx.fillStyle =
+      node.getStyle('shape.background') || Constants.defaultBackgroundColor;
+    ctx.strokeStyle =
+      node.getStyle('shape.border.color') || Constants.defaultBorderColor;
+    const width = node.getStyle('shape.border.width');
+    if (width !== undefined) {
+      ctx.lineWidth = width;
+    }
+    ctx.lineJoin =
+      node.getStyle('shape.border.join') || Constants.defaultBorderJoin;
+    ctx.lineCap =
+      node.getStyle('shape.border.cap') || Constants.defaultBorderCap;
   }
 }
 
-function strokeAndFill(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
-  if (comp.borderWidth !== undefined) {
-    ctx.stroke();
+function strokeAndFill(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
+  if (comp) {
+    if (comp.borderWidth !== undefined) {
+      ctx.stroke();
+    }
+  } else {
+    const node = <Node>data;
+    const width = node.getStyle('shape.border.width');
+    if (width !== undefined) {
+      ctx.stroke();
+    }
   }
   ctx.fill();
 }
@@ -46,9 +60,19 @@ function strokeAndFill(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
  * @param data
  * @param comp
  */
-function drawRect(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+function drawRect(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
   ctx.save();
-  const [x, y, width, height] = comp.rect;
+  let x, y, width, height;
+  // 绘制图标
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+  }
   setStyle(ctx, data, comp);
   ctx.beginPath();
   ctx.rect(x, y, width, height);
@@ -63,9 +87,19 @@ function drawRect(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
  * @param data
  * @param comp
  */
-function drawCircle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+function drawCircle(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
   ctx.save();
-  const [x, y, width, height] = comp.rect;
+  let x, y, width, height;
+  // 绘制图标
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+  }
   setStyle(ctx, data, comp);
   const radius = Math.min(width, height) / 2;
   ctx.beginPath();
@@ -81,9 +115,18 @@ function drawCircle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
  * @param data
  * @param comp
  */
-function drawOval(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+function drawOval(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
   ctx.save();
-  const [x, y, width, height] = comp.rect;
+  let x, y, width, height;
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+  }
   const radiusX = width / 2;
   const radiusY = height / 2;
   ctx.beginPath();
@@ -123,10 +166,24 @@ export const getTextSize = (function () {
  * @param data
  * @param comp
  */
-function drawText(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+function drawText(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
   ctx.save();
-  const [x, y, width, height] = comp.rect;
-  let { text, font, color, align, vAlign } = comp;
+  let x, y, width, height, text, font, color, align, vAlign;
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+    ({ text, font, color, align, vAlign } = comp);
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+    text = node.getStyle('text');
+    font = node.getStyle('text.font');
+    color = node.getStyle('text.color');
+    align = node.getStyle('text.align');
+    vAlign = node.getStyle('text.vAlign');
+  }
   ctx.font = font || Constants.defaultFont;
   const size = getTextSize(ctx.font, text);
   ctx.textAlign = 'center';
@@ -136,7 +193,8 @@ function drawText(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   align = align || Constants.defaultAlign;
   color = color || Constants.defaultFontColor;
   text = text || Constants.defaultText;
-  let textX = 0, textY = 0;
+  let textX = 0,
+    textY = 0;
   if (vAlign === 'top') {
     textY = y + size.height / 2;
   } else if (vAlign === 'middle') {
@@ -399,15 +457,15 @@ function beforeRenderNode(
   image?: any
 ) {
   const node = <Node>data;
-  const nodeWidth = node.width || image.width;
-  const nodeHeight = node.height || image.height;
-  ctx.translate(node.x - nodeWidth / 2, node.y - nodeHeight / 2);
   if (image) {
-    // 图标原始大小
-    const { width, height } = image;
-    const scaleX = nodeWidth / width;
-    const scaleY = nodeHeight / height;
+    const nodeWidth = node.width || image.width;
+    const nodeHeight = node.height || image.height;
+    ctx.translate(node.x - nodeWidth / 2, node.y - nodeHeight / 2);
+    const scaleX = nodeWidth / image.width;
+    const scaleY = nodeHeight / image.height;
     ctx.scale(scaleX, scaleY);
+  } else {
+    ctx.translate(node.x - node.width / 2, node.y - node.height / 2);
   }
 }
 
@@ -423,62 +481,93 @@ export function drawNodeImage(
   gv: GraphView,
   dm: DataModel,
   data: Data,
-  image: any
+  image?: any
 ) {
   const node = <Node>data;
   if (!node.width || !node.height) {
     return;
   }
   const context = gv.context;
-  // 图标内容
-  const comps = <any[]>image.comps;
-  if (comps) {
-    context.save();
-    beforeRenderNode(context, data, image);
-    for (let comp of comps) {
-      switch (comp.type) {
-        case 'rect':
-          drawRect(context, data, comp);
-          break;
-        case 'circle':
-          drawCircle(context, data, comp);
-          break;
-        case 'oval':
-          drawOval(context, data, comp);
-          break;
-        case 'text':
-          drawText(context, data, comp);
-          break;
-        case 'image':
-          drawImage(context, data, comp);
-          break;
-        case 'shape':
-          drawShape(context, data, comp);
-          break;
-        case 'triangle':
-          drawTriangle(context, data, comp);
-          break;
-        case 'arc':
-          drawArc(context, data, comp);
-          break;
+  context.save();
+  // 带图的Node
+  if (image) {
+    // 图标内容
+    const comps = <any[]>image.comps;
+    if (comps) {
+      beforeRenderNode(context, data, image);
+      for (let comp of comps) {
+        drawBasicShape(context, data, comp.type, comp);
       }
     }
+  } else {
+    const shapeType = node.getStyle('shape');
+    beforeRenderNode(context, data);
+    drawBasicShape(context, data, shapeType);
   }
   context.restore();
 }
 
-export function drawSlection(gv: GraphView, node: Node) {
-  if (!node.width || !node.height) {
+/**
+ * 绘制图纸上的文字
+ * @param context
+ * @param data
+ */
+export function drawDisplayText(context: CanvasRenderingContext2D, data: Data) {
+  context.save();
+  beforeRenderNode(context, data);
+  drawText(context, data);
+  context.restore();
+}
+
+function drawBasicShape(
+  context: CanvasRenderingContext2D,
+  data: Data,
+  type: string,
+  comp?: any
+) {
+  switch (type) {
+    case 'rect':
+      drawRect(context, data, comp);
+      break;
+    case 'circle':
+      drawCircle(context, data, comp);
+      break;
+    case 'oval':
+      drawOval(context, data, comp);
+      break;
+    case 'text':
+      drawText(context, data, comp);
+      break;
+    case 'image':
+      drawImage(context, data, comp);
+      break;
+    case 'shape':
+      drawShape(context, data, comp);
+      break;
+    case 'triangle':
+      drawTriangle(context, data, comp);
+      break;
+    case 'arc':
+      drawArc(context, data, comp);
+      break;
+  }
+}
+
+export function drawSlection(gv: GraphView, data: Data) {
+  // @ts-ignore
+  if (!data.width || !data.height) {
     return;
   }
+  // @ts-ignore
+  const x = data.x, y = data.y, width = data.width, height = data.height;
   const context = gv.context;
   context.save();
   context.beginPath();
   context.rect(
-    node.x - node.width / 2,
-    node.y - node.height / 2,
-    node.width,
-    node.height
+    x - width / 2,
+    y - height / 2,
+    width,
+    height
   );
   context.scale(0.5, 0.5);
   context.strokeStyle = '#60ACFC';
@@ -521,20 +610,40 @@ export function containsPoint(bounds: Bounds, x: number, y: number) {
  * 根据配置生成Node对象
  * @param d
  */
-export function generateNode(d: any, dm: DataModel) {
+export function generateNode(d: any) {
   const property = d.p;
   const { position, width, height, image } = property;
   const node = new Node();
   node.id = d.i;
-  node.dataModel = dm;
   node.x = position.x;
   node.y = position.y;
   node.width = width;
   node.height = height;
   if (image) {
     node.image = image;
+  } else {
+    const style = d.s;
+    node.setStyle(style);
   }
   return node;
+}
+
+/**
+ * 根据配置生成Text对象
+ * @param d
+ */
+export function generateText(d: any) {
+  const property = d.p;
+  const { position, width, height } = property;
+  const text = new Text();
+  text.id = d.i;
+  text.x = position.x;
+  text.y = position.y;
+  text.width = width;
+  text.height = height;
+  const style = d.s;
+  text.setStyle(style);
+  return text;
 }
 
 export function extend(destination: any, source: any, deep?: boolean) {

@@ -3,7 +3,7 @@ import Node from './Node';
 import Notifier from './Notifier';
 import Edge, { getEdgeStyle } from './Edge';
 import List from './List';
-import { generateNode, uuid } from './utils';
+import { generateNode, generateText, uuid } from './utils';
 
 export default class DataModel extends Notifier {
   private _dataList: List<Data> = new List();
@@ -38,17 +38,10 @@ export default class DataModel extends Notifier {
     } else {
       this._lastId = data.id;
     }
-    this._dataList.add(data, index)
+    this._dataList.add(data, index);
     this._idMap.set(data.id, data);
     // update canvas
     this.emitNextTick('renderAll');
-  }
-
-  setDatas(datas: Data[]) {
-    for (const data of datas) {
-      data.dataModel = this;
-      this.add(data);
-    }
   }
 
   getDataById(id: number) {
@@ -84,13 +77,19 @@ export default class DataModel extends Notifier {
       for (let i = 0; i < datas.length; i++) {
         const data = datas[i];
         const property = data.p;
-        const className = data.c;
+        const originClassName: string = data.c;
+        const dotIndex = originClassName.indexOf('.');
+        const className = originClassName.substr(dotIndex + 1);
         const id = data.i;
         if (className === 'Node') {
           if (!this.getDataById(id)) {
-            const node = generateNode(data, this);
+            const node = generateNode(data);
             this.add(node, i);
           }
+        }
+        if (className == 'Text') {
+          const text = generateText(data);
+          this.add(text, i);
         }
         // 连线
         if (className === 'Edge') {
@@ -109,7 +108,7 @@ export default class DataModel extends Notifier {
             const sourceJsonIndex = datas.findIndex((v) => v.i === source.__i);
             if (sourceJsonIndex === -1) continue;
             const sourceJson = datas[sourceJsonIndex];
-            const sourceNode = generateNode(sourceJson, this);
+            const sourceNode = generateNode(sourceJson);
             this.add(sourceNode, sourceJsonIndex);
             edge.setSource(sourceNode);
           } else {
@@ -120,7 +119,7 @@ export default class DataModel extends Notifier {
             const targetJsonIndex = datas.findIndex((v) => v.i === target.__i);
             if (targetJsonIndex === -1) continue;
             const targetJson = datas[targetJsonIndex];
-            const targetNode = generateNode(targetJson, this);
+            const targetNode = generateNode(targetJson);
             this.add(targetNode, targetJsonIndex);
             edge.setTarget(targetNode);
           } else {

@@ -14,7 +14,8 @@ export default defineComponent({
     graph.utils.convertURL = function (url: string) {
       return `storage/${url}`;
     };
-    const json = await graph.utils.load('displays/display.json');
+    const json = await graph.utils.load('displays/basic.json');
+    // const json = await graph.utils.load('displays/display.json');
     const gv = new graph.GraphView({
       editable: true,
     });
@@ -30,7 +31,7 @@ export default defineComponent({
     node.y = 200;
     node.width = 352.19811;
     node.height = 352.19811;
-    dm.add(node);
+    // dm.add(node);
     
     gv.mount(this.$el);
 
