@@ -47,7 +47,11 @@ async function loadImage(imageList: ImageCompConfig[]) {
         }
         resolve();
       };
-      img.src = image.name;
+      if (image.name.startsWith('data:image')) {
+        img.src = image.name;
+      } else {
+        img.src = globalGraph.convertURL(image.name);
+      }
     });
   });
   return Promise.all(loadList);

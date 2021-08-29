@@ -34,32 +34,6 @@ export default defineComponent({
     
     gv.mount(this.$el);
 
-
-    class A {
-      private _value: any;
-      set value(v: any) {
-        this._value = v;
-      }
-      get value() {
-        return this._value;
-      }
-    }
-    class B {
-      private _value: any;
-      set value(v: any) {
-        this._value = v;
-      }
-      get value() {
-        return this._value;
-      }
-    }
-    const list: any[] = [];
-    const b = new B();
-    b.value = 10;
-    const a = new A();
-    a.value = b;
-    // @ts-ignore
-    window.list = list, window.a = a, window.b = b
   },
 });
 </script>
