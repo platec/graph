@@ -16,7 +16,7 @@ export default class Data {
     this._id = id;
   }  
 
-  changeData() {
+  update() {
     if (this.dataModel) {
       this.dataModel.emitNextTick('renderAll');
     }

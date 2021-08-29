@@ -7,7 +7,8 @@ export default class Node extends Data {
   private _width = 0;
   private _height = 0;
   private _image = '';
-  private _imageLoaded = false;
+  private _displayName = '';
+  private _symbolLoaded = false;
   private _styleMap = new Map();
 
   constructor() {
@@ -20,7 +21,7 @@ export default class Node extends Data {
 
   public set x(x) {
     this._x = x;
-    this.changeData();
+    this.update();
   }
 
   public get y() {
@@ -29,7 +30,7 @@ export default class Node extends Data {
 
   public set y(y) {
     this._y = y;
-    this.changeData();
+    this.update();
   }
 
   public get width() {
@@ -38,7 +39,7 @@ export default class Node extends Data {
 
   public set width(width) {
     this._width = width;
-    this.changeData();
+    this.update();
   }
 
   public get height() {
@@ -47,7 +48,7 @@ export default class Node extends Data {
 
   public set height(height) {
     this._height = height;
-    this.changeData();
+    this.update();
   }
 
   public get image() {
@@ -55,16 +56,24 @@ export default class Node extends Data {
   }
 
   public set image(image) {
+    this.symbolLoaded = false;
     this._image = image;
-    this.changeData();
+    this.update();
   }
 
-  public get imageLoaded() {
-    return this._imageLoaded;
+  public get displayName() {
+    return this._displayName;
   }
 
-  public set imageLoaded(loaded) {
-    this._imageLoaded = loaded;
+  public set displayName(displayName) {
+    this._displayName = displayName;
+  }
+  public get symbolLoaded() {
+    return this._symbolLoaded;
+  }
+
+  public set symbolLoaded(loaded) {
+    this._symbolLoaded = loaded;
   }
 
   public getBounds() {
@@ -85,7 +94,7 @@ export default class Node extends Data {
         this._styleMap.set(key, style[key]);
       }
     }
-    this.changeData();
+    this.update();
   }
 
   getStyle(name: string) {

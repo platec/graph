@@ -5,6 +5,7 @@ import Constants from '../Constants';
 import Node from '../Node';
 import Edge from '../Edge';
 import Text from '../Text';
+import Shape from '../Shape';
 import graph from '../Global';
 
 /**
@@ -292,11 +293,21 @@ export function drawEdge(ctx: CanvasRenderingContext2D, data: Data) {
 export function drawImage(
   ctx: CanvasRenderingContext2D,
   data: Data,
-  comp: any
+  comp?: any
 ) {
   ctx.save();
-  const [x, y, width, height] = comp.rect;
-  const { name, displayName } = comp;
+  let x, y, width, height, name, displayName;
+  // 绘制图标
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+    ({ name, displayName } = comp);
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height, image: name, displayName } = node);
+  }
   let cacheName;
   if (name.startsWith('data:image')) {
     cacheName = displayName;
@@ -335,13 +346,22 @@ function convertListToPointList(list: number[]) {
 export function drawShape(
   ctx: CanvasRenderingContext2D,
   data: Data,
-  comp: any
+  comp?: any
 ) {
-  const { points, segments, closePath } = comp;
   ctx.save();
+  // 图标内不规则图形
+  let segments, closePath, pointList: Point[];
+  if (comp) {
+    ({ segments, closePath } = comp);
+    pointList = convertListToPointList(comp.points);
+  } else {
+    const shape = <Shape>data;
+    pointList = shape.points;
+    segments = shape.segments;
+    closePath = shape.closePath;
+  }
   setStyle(ctx, data, comp);
   ctx.beginPath();
-  const pointList = convertListToPointList(points);
   if (segments && segments.length > 0) {
     const count = segments.length;
     for (let i = 0, pi = 0; i < count; i++) {
@@ -389,16 +409,22 @@ export function drawShape(
       }
     }
   }
-  if (comp.borderWidth) {
+  const shape = <Shape>data;
+  const borderWidth =
+    (comp ? comp.borderWidth : shape.getStyle('shape.border.width')) || 0;
+  if (borderWidth !== 0) {
+    ctx.lineWidth = borderWidth;
     ctx.stroke();
   }
+  const background = comp
+    ? comp.background
+    : shape.getStyle('shape.background');
+  const fillRule =
+    (comp ? comp.fillRule : shape.getStyle('shape.fill.rule')) ||
+    Constants.defaultFillRule;
   // 填充颜色
-  if (comp.background) {
-    if (comp.fillRule !== undefined) {
-      ctx.fill(comp.fillRule);
-    } else {
-      ctx.fill(Constants.defaultFillRule);
-    }
+  if (background) {
+    ctx.fill(fillRule);
   }
   ctx.restore();
 }
@@ -409,11 +435,21 @@ export function drawShape(
  * @param data
  * @param comp
  */
-function drawTriangle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
+function drawTriangle(ctx: CanvasRenderingContext2D, data: Data, comp?: any) {
   ctx.save();
+  let x, y, width, height;
+  // 绘制图标
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+  }
   setStyle(ctx, data, comp);
   ctx.beginPath();
-  const [x, y, width, height] = comp.rect;
   ctx.moveTo(x + width / 2, y);
   ctx.lineTo(x + width, y + height);
   ctx.lineTo(x, y + height);
@@ -432,13 +468,31 @@ function drawTriangle(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
  */
 function drawArc(ctx: CanvasRenderingContext2D, data: Data, comp: any) {
   ctx.save();
-  const { arcFrom, arcTo, arcClose } = comp;
-  const [x, y, width, height] = comp.rect;
+  let x, y, width, height, arcFrom, arcTo, arcClose;
+  // 绘制图标
+  if (comp) {
+    [x, y, width, height] = comp.rect;
+    ({ arcFrom, arcTo, arcClose } = comp);
+  } else {
+    // 绘制Node
+    const node = <Node>data;
+    x = 0;
+    y = 0;
+    ({ width, height } = node);
+    arcFrom = node.getStyle('shape.arc.from');
+    arcTo = node.getStyle('shape.arc.to');
+    arcClose = node.getStyle('shape.arc.close');
+  }
   const radius = Math.min(width, height) / 2;
   setStyle(ctx, data, comp);
   ctx.beginPath();
-  ctx.arc(x + width / 2, y + height / 2, radius, arcFrom, arcTo);
-  if (arcClose) {
+  const cx = x + width / 2;
+  const cy = y + height / 2
+  ctx.arc(cx, cy, radius, arcFrom, arcTo);
+  // 默认是闭合状态
+  if (arcClose === undefined || arcClose === true) {
+    // 交于圆心
+    ctx.lineTo(cx, cy);
     ctx.closePath();
   }
   strokeAndFill(ctx, data, comp);
@@ -500,9 +554,14 @@ export function drawNodeImage(
       }
     }
   } else {
+    // 几何形状
     const shapeType = node.getStyle('shape');
     beforeRenderNode(context, data);
-    drawBasicShape(context, data, shapeType);
+    if (shapeType) {
+      drawBasicShape(context, data, shapeType);
+    } else {
+      drawImage(context, data);
+    }
   }
   context.restore();
 }
@@ -559,17 +618,12 @@ export function drawSlection(gv: GraphView, data: Data) {
     return;
   }
   // @ts-ignore
-  const x = data.x, y = data.y, width = data.width, height = data.height;
+  const { x, y, width, height } = data;
   const context = gv.context;
   context.save();
   context.beginPath();
-  context.rect(
-    x - width / 2,
-    y - height / 2,
-    width,
-    height
-  );
-  context.scale(0.5, 0.5);
+  context.rect(x - width / 2, y - height / 2, width, height);
+  context.lineWidth = 1;
   context.strokeStyle = '#60ACFC';
   context.stroke();
   context.closePath();
@@ -612,13 +666,14 @@ export function containsPoint(bounds: Bounds, x: number, y: number) {
  */
 export function generateNode(d: any) {
   const property = d.p;
-  const { position, width, height, image } = property;
+  const { position, width, height, image, displayName } = property;
   const node = new Node();
   node.id = d.i;
   node.x = position.x;
   node.y = position.y;
   node.width = width;
   node.height = height;
+  node.displayName = displayName;
   if (image) {
     node.image = image;
   } else {
@@ -644,6 +699,27 @@ export function generateText(d: any) {
   const style = d.s;
   text.setStyle(style);
   return text;
+}
+
+/**
+ * 根据配置生成Shape对象
+ * @param d
+ */
+export function generateShape(d: any) {
+  const property = d.p;
+  const { position, width, height, segments, points, closePath } = property;
+  const shape = new Shape();
+  shape.id = d.i;
+  shape.segments = segments.__a;
+  shape.points = points.__a;
+  shape.closePath = closePath;
+  shape.x = position.x;
+  shape.y = position.y;
+  shape.width = width;
+  shape.height = height;
+  const style = d.s;
+  shape.setStyle(style);
+  return shape;
 }
 
 export function extend(destination: any, source: any, deep?: boolean) {

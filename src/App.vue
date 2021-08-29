@@ -23,18 +23,21 @@ export default defineComponent({
     gv.setDataModel(dm);
     dm.deserialize(json);
     // @ts-ignore
-    window.dm = dm
+    window.dm = dm;
+    // @ts-ignore
+    window.gv = gv;
+    // @ts-ignore
+    window.graph = graph;
 
     const node = new graph.Node();
-    node.image = 'symbols/demo/image.json'
+    node.image = 'symbols/demo/image.json';
     node.x = 200;
     node.y = 200;
     node.width = 352.19811;
     node.height = 352.19811;
     // dm.add(node);
-    
-    gv.mount(this.$el);
 
+    gv.mount(this.$el);
   },
 });
 </script>

@@ -38,7 +38,7 @@ export default class Edge extends Data {
         this._styleMap.set(key, style[key]);
       }
     }
-    this.changeData();
+    this.update();
   }
 
   getStyle(name: string) {
@@ -47,12 +47,12 @@ export default class Edge extends Data {
 
   setSource(data: Data) {
     this._source = data;
-    this.changeData();
+    this.update();
   }
 
   setTarget(data: Data) {
     this._target = data;
-    this.changeData();
+    this.update();
   }
 
   getSource() {

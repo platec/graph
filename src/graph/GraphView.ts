@@ -6,11 +6,14 @@ import {
   drawSlection,
   drawEdge,
   drawDisplayText,
+  drawShape,
 } from './utils';
 import Node from './Node';
 import List from './List';
 import Data from './Data';
 import graph from './Global';
+import Point from './Point';
+import Shape from './Shape';
 
 export interface GraphViewOptions {
   editable?: boolean;
@@ -49,7 +52,7 @@ export default class GraphView {
       const position = getEventPosition(document.body, e);
       if (this.dataModel) {
         const datas = this.dataModel.getDatas();
-        const selection = [];
+        const selection = new List<Data>();
         let selectedNode;
         for (let i = 0; i < datas.size(); i++) {
           const data = datas.get(i);
@@ -62,15 +65,15 @@ export default class GraphView {
               // @ts-ignore
               offset.y = position.y - data.y;
               selectedNode = data;
-            }            
+            }
           }
         }
         if (selectedNode) {
-          selection.push(selectedNode);
+          selection.add(selectedNode);
         }
         if (
           this.dataModel.getSelection().size() !== 0 ||
-          selection.length !== 0
+          selection.size() !== 0
         ) {
           this.dataModel.setSelection(selection);
         }
@@ -80,16 +83,37 @@ export default class GraphView {
     };
     const onMouseMove = (e: MouseEvent) => {
       if (this.dataModel) {
-        const selection = <List<Node>>this.dataModel.getSelection();
+        const selection = <List<Data>>this.dataModel.getSelection();
         const position = getEventPosition(document.body, e);
         if (selection.size() > 0) {
-          selection.each((node) => {
-            if (node) {
-              node.x = position.x - offset.x;
-              node.y = position.y - offset.y;
+          selection.each((data) => {
+            const currentPoint = {
+              x: position.x - offset.x,
+              y: position.y - offset.y
+            };
+            // Shape需要平移所有的点
+            if(data?.className === 'Shape') {
+              const shape = <Shape>data;
+              const points = shape.points;
+              shape.points = points.map(point => {
+                const p = new Point(point.x, point.y);
+                // @ts-ignore
+                const p2 = new Point(currentPoint.x - data.x, currentPoint.y - data.y);
+                const v = p.add(p2);
+                return {
+                  x: v.x,
+                  y: v.y
+                };
+              });
+            }            
+            if (data) {
+              // @ts-ignore
+              data.x = currentPoint.x;
+              // @ts-ignore
+              data.y = currentPoint.y;
             }
+
           });
-          this.renderAll();
         }
       }
     };
@@ -128,11 +152,31 @@ export default class GraphView {
   async renderAll() {
     if (this.dataModel) {
       const datas = this.dataModel.getDatas();
-      const imageToLoad = new Set();
+      // 加载图标文件
+      const symbolToLoad = new Set();
+      const imageToLoad: Set<ImageCompConfig> = new Set();
       datas.each((data) => {
         const node = <Node>data;
-        if (node.image && !graph.getImage(node.image)) {
-          imageToLoad.add(node.image);
+        const image: string = node.image;
+        if (image) {
+          if (image.endsWith('.json')) {
+            if (!graph.getImage(image)) {
+              symbolToLoad.add(image);
+            }
+          } else {
+            let cacheName;
+            if (image.startsWith('data:image')) {
+              cacheName = node.displayName;
+            } else {
+              cacheName = node.image;
+            }
+            if (!graph.getImage(cacheName)) {
+              imageToLoad.add({
+                name: image,
+                displayName: node.displayName,
+              });
+            }
+          }
         }
       });
       this.context.save();
@@ -142,8 +186,13 @@ export default class GraphView {
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.restore();
       }
+      // 提前加载图标
+      if (symbolToLoad.size > 0) {
+        await graph.loadSymbol(Array.from(symbolToLoad));
+      }
+      // 提前加载图片
       if (imageToLoad.size > 0) {
-        await graph.loadSymbol(Array.from(imageToLoad));
+        await graph.loadImage(Array.from(imageToLoad));
       }
       const size = datas.size();
       for (let i = 0; i < size; i++) {
@@ -152,28 +201,49 @@ export default class GraphView {
         if (className === 'Node') {
           const node = <Node>data;
           if (node.image) {
-            const imageURL = node.image;
-            const image = graph.getImage(imageURL);
-            // 图标内容
-            const comps = <any[]>image.comps;
-            if (comps.length) {
-              if (!node.imageLoaded) {
-                // 检查图标中是否有图片
-                const imageList = comps.filter((v) => v.type === 'image');
-                if (imageList.length > 0) {
-                  await graph.loadImage(Array.from(new Set(imageList)));
-                  node.imageLoaded = true;
+            const imageURL: string = node.image;
+            // 使用图标的Node
+            if (imageURL.endsWith('.json')) {
+              const symbol = graph.getImage(imageURL);
+              // 图标内容
+              const comps = <any[]>symbol.comps;
+              if (comps.length) {
+                if (!node.symbolLoaded) {
+                  // 下载所有没有缓存的图标内图标文件
+                  const imageSet: Set<ImageCompConfig> = new Set();
+                  comps.forEach((comp) => {
+                    if (comp.type === 'image') {
+                      const img: string = comp.name;
+                      if (
+                        img.startsWith('data:image') &&
+                        !graph.getImage(comp.displayName)
+                      ) {
+                        imageSet.add(comp);
+                      } else if (!graph.getImage(comp.name)) {
+                        imageSet.add(comp);
+                      }
+                    }
+                  });
+                  if (imageSet.size > 0) {
+                    await graph.loadImage(Array.from(imageSet));
+                    node.symbolLoaded = true;
+                  }
                 }
+                drawNodeImage(this, this.dataModel, node, symbol);
               }
-              drawNodeImage(this, this.dataModel, node, image);
+            } else {
+              drawNodeImage(this, this.dataModel, node);
             }
           } else {
+            // 不使用图标或者图片文件的Node
             drawNodeImage(this, this.dataModel, node);
           }
         } else if (data.className === 'Edge') {
           drawEdge(this.context, data);
         } else if (className === 'Text') {
           drawDisplayText(this.context, data);
+        } else if (className === 'Shape') {
+          drawShape(this.context, data);
         }
       }
       const selection = <List<Data>>this.dataModel.getSelection();

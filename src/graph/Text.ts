@@ -18,7 +18,7 @@ export default class Text extends Data {
 
   public set x(x) {
     this._x = x;
-    this.changeData();
+    this.update();
   }
 
   public get y() {
@@ -27,7 +27,7 @@ export default class Text extends Data {
 
   public set y(y) {
     this._y = y;
-    this.changeData();
+    this.update();
   }
 
   public get width() {
@@ -36,7 +36,7 @@ export default class Text extends Data {
 
   public set width(width) {
     this._width = width;
-    this.changeData();
+    this.update();
   }
 
   public get height() {
@@ -45,7 +45,7 @@ export default class Text extends Data {
 
   public set height(height) {
     this._height = height;
-    this.changeData();
+    this.update();
   }
 
   public getBounds() {
@@ -66,7 +66,7 @@ export default class Text extends Data {
         this._styleMap.set(key, style[key]);
       }
     }
-    this.changeData();
+    this.update();
   }
 
   getStyle(name: string) {

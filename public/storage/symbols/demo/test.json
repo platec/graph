@@ -1,5 +1,5 @@
 {
-  "modified": "Sun Aug 29 2021 12:36:38 GMT+0800 (中国标准时间)",
+  "modified": "Sun Aug 29 2021 17:06:18 GMT+0800 (中国标准时间)",
   "width": 200,
   "height": 140,
   "comps": [
@@ -29,9 +29,9 @@
     {
       "type": "text",
       "text": "待维修    禁止操作",
-      "font": "17px sans-serif, Arial",
       "align": "center",
       "color": "rgb(255,255,255)",
+      "font": "12px sans-serif, Arial",
       "scaleX": 1.5,
       "scaleY": 1.5,
       "rect": [

@@ -3,7 +3,7 @@ import Node from './Node';
 import Notifier from './Notifier';
 import Edge, { getEdgeStyle } from './Edge';
 import List from './List';
-import { generateNode, generateText, uuid } from './utils';
+import { generateNode, generateShape, generateText, uuid } from './utils';
 
 export default class DataModel extends Notifier {
   private _dataList: List<Data> = new List();
@@ -56,9 +56,11 @@ export default class DataModel extends Notifier {
     return this._selection;
   }
 
-  setSelection(datas: Data[]) {
+  setSelection(datas: List<Data>) {
     this._selection.clear();
-    for (const data of datas) {
+    const size = datas.size();
+    for (let i = 0; i < size; i++) {
+      const data = datas.get(i);
       this._selection.push(data);
     }
     // update canvas next tick
@@ -125,6 +127,10 @@ export default class DataModel extends Notifier {
           } else {
             edge.setTarget(targetNode);
           }
+        }
+        if (className === 'Shape') {
+          const shape = generateShape(data);
+          this.add(shape, i);
         }
       }
     }
