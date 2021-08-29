@@ -1,8 +1,8 @@
 export default class Notifier {
-  private events: any;
-  private isWaiting = false;
+  private _events: any;
+  private _isWaiting = false;
   constructor() {
-    this.events = Object.create(null);
+    this._events = Object.create(null);
   }
 
   on(event: string | Array<string>, fn: Function) {
@@ -11,14 +11,14 @@ export default class Notifier {
         this.on(event[i], fn);
       }
     } else {
-      (this.events[event] || (this.events[event] = [])).push(fn);
+      (this._events[event] || (this._events[event] = [])).push(fn);
     }
     return this;
   }
 
   off(event: string | Array<string>, fn: Function) {
     if (!arguments.length) {
-      this.events = Object.create(null);
+      this._events = Object.create(null);
       return this;
     }
     if (Array.isArray(event)) {
@@ -27,12 +27,12 @@ export default class Notifier {
       }
       return this;
     }
-    const cbs = this.events[event];
+    const cbs = this._events[event];
     if (!cbs) {
       return this;
     }
     if (!fn) {
-      this.events[event] = null;
+      this._events[event] = null;
       return this;
     }
     let cb;
@@ -60,7 +60,7 @@ export default class Notifier {
   }
 
   emit(event: string) {
-    const cbs = this.events[event];
+    const cbs = this._events[event];
     if (cbs) {
       const args = Array.from(arguments).slice(1);
       for (let i = 0, l = cbs.length; i < l; i++) {
@@ -71,11 +71,11 @@ export default class Notifier {
   }
 
   emitNextTick(event: string) {
-    if (!this.isWaiting) {
-      this.isWaiting = true;
+    if (!this._isWaiting) {
+      this._isWaiting = true;
       requestAnimationFrame(() => {
         this.emit(event);
-        this.isWaiting = false;
+        this._isWaiting = false;
       });
     }
   }

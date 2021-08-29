@@ -4,148 +4,181 @@
     "autoAdjustIndex": true,
     "hierarchicalRendering": true
   },
-  "a": {
-    "width": 1920,
-    "height": 1080
-  },
+  "a": {},
   "d": [
     {
-      "c": "Node",
-      "i": 842,
+      "c": "Edge",
+      "i": 2242,
       "p": {
-        "displayName": "image",
-        "image": "symbols/demo/image.json",
-        "position": {
-          "x": 1562.00673,
-          "y": 749.45279
+        "source": {
+          "__i": 1334
         },
-        "width": 352.19811,
-        "height": 352.19811
+        "target": {
+          "__i": 1332
+        }
+      },
+      "s": {
+        "edge.color": "rgb(51,153,255)",
+        "edge.width": 13,
+        "edge.type": "points",
+        "edge.segments": {
+          "__a": [
+            1,
+            4,
+            4,
+            4
+          ]
+        },
+        "edge.points": {
+          "__a": [
+            {
+              "x": 378.10783,
+              "y": 487.73313
+            },
+            {
+              "x": 880.46478,
+              "y": 483.95062
+            },
+            {
+              "x": 772.69426,
+              "y": 695.42484
+            },
+            {
+              "x": 714.20435,
+              "y": 810.19749
+            },
+            {
+              "x": 1236.33035,
+              "y": 939.9515
+            },
+            {
+              "x": 1423.38417,
+              "y": 788.96151
+            },
+            {
+              "x": 1580.98616,
+              "y": 661.74506
+            },
+            {
+              "x": 1404.70685,
+              "y": 257.30456
+            }
+          ]
+        },
+        "edge.source.anchor.x": 0.5,
+        "edge.source.anchor.y": 0.5,
+        "edge.target.anchor.x": 0.5,
+        "edge.target.anchor.y": 0.5
+      }
+    },
+    {
+      "c": "Edge",
+      "i": 1330,
+      "p": {
+        "source": {
+          "__i": 1333
+        },
+        "target": {
+          "__i": 1334
+        }
+      },
+      "s": {
+        "edge.color": "rgb(51,153,255)",
+        "edge.width": 13
+      }
+    },
+    {
+      "c": "Edge",
+      "i": 1331,
+      "p": {
+        "source": {
+          "__i": 1333
+        },
+        "target": {
+          "__i": 1332
+        }
+      },
+      "s": {
+        "edge.color": "rgb(51,153,255)",
+        "edge.width": 13,
+        "edge.type": "points",
+        "edge.segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2
+          ]
+        },
+        "edge.points": {
+          "__a": [
+            {
+              "x": 996.36892,
+              "y": 660.85694
+            },
+            {
+              "x": 1089.90559,
+              "y": 278.57662
+            }
+          ]
+        },
+        "edge.source.anchor.x": 0.5,
+        "edge.source.anchor.y": 0.5,
+        "edge.target.anchor.x": 0.5,
+        "edge.target.anchor.y": 0.5,
+        "edge.cap": "round"
       }
     },
     {
       "c": "Node",
-      "i": 843,
+      "i": 1332,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 965.48281,
-          "y": 122.76688
+          "x": 1644.64875,
+          "y": 607.70408
         },
-        "width": 245.53377,
-        "height": 245.53377
+        "width": 139.02494,
+        "height": 139.02494
       }
     },
     {
       "c": "Node",
-      "i": 844,
+      "i": 1333,
       "p": {
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 301.04575,
-          "y": 645.40386
+          "x": 294.42341,
+          "y": 183.68149
         },
-        "width": 256.20915,
-        "height": 256.20915,
+        "width": 109.8915,
+        "height": 109.8915,
         "tall": 20
       }
     },
     {
-      "c": "Edge",
-      "i": 845,
-      "p": {
-        "source": {
-          "__i": 843
-        },
-        "target": {
-          "__i": 844
-        }
-      },
-      "s": {
-        "edge.color": "#009687",
-        "edge.width": 1
-      }
-    },
-    {
       "c": "Node",
-      "i": 846,
+      "i": 1334,
       "p": {
-        "displayName": "album",
-        "image": "symbols/demo/album.json",
+        "displayName": "test2",
+        "image": "symbols/demo/test2.json",
         "position": {
-          "x": 1534.17388,
-          "y": 148.2662
+          "x": 374.04102,
+          "y": 607.70408
         },
-        "width": 296.53241,
-        "height": 296.53241
-      }
-    },
-    {
-      "c": "Node",
-      "i": 6354,
-      "p": {
-        "displayName": "test",
-        "image": "symbols/demo/test.json",
-        "position": {
-          "x": 821.81699,
-          "y": 853.34504
-        },
-        "width": 490.41394,
-        "height": 343.28976
-      }
-    },
-    {
-      "c": "Node",
-      "i": 6451,
-      "p": {
-        "displayName": "test3",
-        "image": "symbols/demo/test3.json",
-        "position": {
-          "x": 1150.54902,
-          "y": 366.00436
-        },
-        "width": 260.99346,
-        "height": 347.99129
-      }
-    },
-    {
-      "c": "Edge",
-      "i": 6843,
-      "p": {
-        "source": {
-          "__i": 6451
-        },
-        "target": {
-          "__i": 6354
-        }
-      },
-      "s": {
-        "edge.color": "#009687",
-        "edge.width": 1
-      }
-    },
-    {
-      "c": "Node",
-      "i": 10549,
-      "p": {
-        "displayName": "test4",
-        "image": "symbols/demo/test4.json",
-        "position": {
-          "x": 907.45807,
-          "y": 526.72844
-        },
-        "width": 203.22522,
-        "height": 270.96696
+        "width": 122.40736,
+        "height": 122.40736,
+        "tall": 20
       }
     }
   ],
-  "modified": "Sat Aug 28 2021 18:21:04 GMT+0800 (中国标准时间)",
+  "modified": "Sun Aug 29 2021 09:53:01 GMT+0800 (中国标准时间)",
   "contentRect": {
-    "x": 0,
-    "y": 0,
-    "width": 1920,
-    "height": 1080
+    "x": 239.47766,
+    "y": 128.73574,
+    "width": 1474.68356,
+    "height": 818.71576
   }
 }

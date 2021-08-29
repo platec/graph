@@ -157,11 +157,60 @@ export function drawEdge(ctx: CanvasRenderingContext2D, data: Data) {
   const end = <Node>edge.getTarget();
   if (start && end) {
     ctx.save();
-    ctx.strokeStyle = 'grey';
-    const startPoint = [start.x, start.y];
-    const endPoint = [end.x, end.y];
-    ctx.moveTo(startPoint[0], startPoint[1]);
-    ctx.lineTo(endPoint[0], endPoint[1]);
+    ctx.beginPath();
+    ctx.strokeStyle =
+      edge.getStyle('edge.color') || Constants.defaultBorderColor;
+    const width = edge.getStyle('edge.width') || Constants.defaultBorderWidth;
+    const cap = edge.getStyle('edge.cap');
+    const join = edge.getStyle('edge.join');
+    ctx.lineJoin = join || Constants.defaultBorderJoin;
+    ctx.lineWidth = width <= 0 ? 1 : width;
+    const startPoint = {
+      x: start.x,
+      y: start.y,
+    };
+    const endPoint = {
+      x: end.x,
+      y: end.y,
+    };
+    const segments = <number[]>edge.getStyle('edge.segments');
+    if (segments) {
+      const points = [...(<Point[]>edge.getStyle('edge.points'))];
+      points.unshift(startPoint);
+      points.push(endPoint);
+      const count = segments.length;
+      for (let i = 0, pi = 0; i < count; i++) {
+        const segment = segments[i];
+        if (segment === 1) {
+          const point = points[pi++];
+          ctx.moveTo(point.x, point.y);
+        } else if (segment === 2) {
+          const point = points[pi++];
+          ctx.lineTo(point.x, point.y);
+        } else if (segment === 3) {
+          const cpoint = points[pi++];
+          const point = points[pi++];
+          ctx.quadraticCurveTo(cpoint.x, cpoint.y, point.x, point.y);
+        } else if (segment === 4) {
+          const c1point = points[pi++];
+          const c2point = points[pi++];
+          const point = points[pi++];
+          ctx.bezierCurveTo(
+            c1point.x,
+            c1point.y,
+            c2point.x,
+            c2point.y,
+            point.x,
+            point.y
+          );
+        }
+      }
+    } else {
+      ctx.moveTo(startPoint.x, startPoint.y);
+      ctx.lineTo(endPoint.x, endPoint.y);
+    }
+    //TODO
+    // ctx.closePath();
     ctx.stroke();
     ctx.restore();
   }
@@ -463,10 +512,12 @@ export function containsPoint(bounds: Bounds, x: number, y: number) {
  * 根据配置生成Node对象
  * @param d
  */
-export function generateNode(d: any) {
+export function generateNode(d: any, dm: DataModel) {
   const property = d.p;
   const { position, width, height, image } = property;
   const node = new Node();
+  node.id = d.i;
+  node.dataModel = dm;
   node.x = position.x;
   node.y = position.y;
   node.width = width;

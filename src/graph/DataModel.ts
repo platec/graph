@@ -1,16 +1,15 @@
 import Data from './Data';
 import Node from './Node';
 import Notifier from './Notifier';
-import global from './Global';
-import Edge from './Edge';
+import Edge, { getEdgeStyle } from './Edge';
+import List from './List';
 import { generateNode, uuid } from './utils';
 
 export default class DataModel extends Notifier {
-  private dataList: Data[] = [];
-  private selectedDataList: Data[] = [];
-  private imageLoaded = false; // 图标全部加载完毕
-  private idMap = new Map<number, Data>();
-  private lastId?: number;
+  private _dataList: List<Data> = new List();
+  private _selection: List<Data> = new List();
+  private _idMap = new Map<number, Data>();
+  private _lastId?: number;
   private _backgrond?: string | undefined;
 
   constructor() {
@@ -26,52 +25,54 @@ export default class DataModel extends Notifier {
     return this._backgrond;
   }
 
-  add(data: Data) {
+  add(data: Data, index?: number) {
     data.dataModel = this;
     if (!data.id) {
-      if (this.lastId) {
-        this.lastId += 1;
-        data.id = this.lastId;
+      if (this._lastId) {
+        this._lastId += 1;
+        data.id = this._lastId;
       } else {
         data.id = uuid();
-        this.lastId = data.id;
+        this._lastId = data.id;
       }
     } else {
-      this.lastId = data.id;
+      this._lastId = data.id;
     }
-    // 检查是否有image且image是否有缓存
-    this.dataList.push(data);
-    this.idMap.set(data.id, data);
+    this._dataList.add(data, index)
+    this._idMap.set(data.id, data);
     // update canvas
     this.emitNextTick('renderAll');
   }
 
   setDatas(datas: Data[]) {
     for (const data of datas) {
+      data.dataModel = this;
       this.add(data);
     }
   }
 
   getDataById(id: number) {
-    return this.idMap.get(id);
+    return this._idMap.get(id);
   }
 
   getDatas() {
-    return this.dataList;
+    return this._dataList;
   }
 
   getSelection() {
-    return this.selectedDataList;
+    return this._selection;
   }
 
   setSelection(datas: Data[]) {
-    this.selectedDataList = datas;
+    this._selection.clear();
+    for (const data of datas) {
+      this._selection.push(data);
+    }
     // update canvas next tick
     this.emitNextTick('renderAll');
   }
 
   deserialize(json: any) {
-    this.imageLoaded = false;
     const datas = <any[]>json.d;
     const dataModelProperty = <any>json.p;
     if (dataModelProperty) {
@@ -79,50 +80,54 @@ export default class DataModel extends Notifier {
     }
     const dataCount = datas.length;
     if (dataCount > 0) {
-      const nodeList: any[] = new Array(dataCount).fill(null);
-      const imageList = [];
+      const dataList: Data[] = new Array(dataCount).fill(null);
       for (let i = 0; i < datas.length; i++) {
         const data = datas[i];
         const property = data.p;
         const className = data.c;
+        const id = data.i;
         if (className === 'Node') {
-          const node = generateNode(data);
-          if (node.image) {
-            // 加载图标
-            imageList.push(node.image);
+          if (!this.getDataById(id)) {
+            const node = generateNode(data, this);
+            this.add(node, i);
           }
-          node.dataModel = this;
-          nodeList[i] = node;
         }
         // 连线
         if (className === 'Edge') {
+          const edge = new Edge();
+          if (data.s) {
+            const style = getEdgeStyle(data.s);
+            edge.setStyle(style);
+          }
+          edge.id = data.i;
+          edge.dataModel = this;
+          this.add(edge, i);
+          dataList[i] = edge;
           const { source, target } = property;
-          let sourceNode = <Node>this.getDataById(source.__i);
+          const sourceNode = <Node>this.getDataById(source.__i);
           if (!sourceNode) {
             const sourceJsonIndex = datas.findIndex((v) => v.i === source.__i);
             if (sourceJsonIndex === -1) continue;
             const sourceJson = datas[sourceJsonIndex];
-            sourceNode = generateNode(sourceJson);
-            nodeList[sourceJsonIndex] = sourceNode;
+            const sourceNode = generateNode(sourceJson, this);
+            this.add(sourceNode, sourceJsonIndex);
+            edge.setSource(sourceNode);
+          } else {
+            edge.setSource(sourceNode);
           }
-          let targetNode = <Node>this.getDataById(target.__i);
+          const targetNode = <Node>this.getDataById(target.__i);
           if (!targetNode) {
             const targetJsonIndex = datas.findIndex((v) => v.i === target.__i);
             if (targetJsonIndex === -1) continue;
             const targetJson = datas[targetJsonIndex];
-            targetNode = generateNode(targetJson);
-            nodeList[targetJsonIndex] = targetNode;
+            const targetNode = generateNode(targetJson, this);
+            this.add(targetNode, targetJsonIndex);
+            edge.setTarget(targetNode);
+          } else {
+            edge.setTarget(targetNode);
           }
-          const edge = new Edge();
-          edge.id = data.i;
-          edge.dataModel = this;
-          edge.setTarget(targetNode);
-          edge.setSource(sourceNode);
-          nodeList[i] = edge;
         }
       }
-
-      this.setDatas(nodeList);
     }
   }
 }

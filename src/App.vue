@@ -21,6 +21,8 @@ export default defineComponent({
     const dm = new DataModel();
     gv.setDataModel(dm);
     dm.deserialize(json);
+    // @ts-ignore
+    window.dm = dm
 
     const node = new graph.Node();
     node.image = 'symbols/demo/image.json'
@@ -28,9 +30,36 @@ export default defineComponent({
     node.y = 200;
     node.width = 352.19811;
     node.height = 352.19811;
-    dm.add(node);
+    // dm.add(node);
     
     gv.mount(this.$el);
+
+
+    class A {
+      private _value: any;
+      set value(v: any) {
+        this._value = v;
+      }
+      get value() {
+        return this._value;
+      }
+    }
+    class B {
+      private _value: any;
+      set value(v: any) {
+        this._value = v;
+      }
+      get value() {
+        return this._value;
+      }
+    }
+    const list: any[] = [];
+    const b = new B();
+    b.value = 10;
+    const a = new A();
+    a.value = b;
+    // @ts-ignore
+    window.list = list, window.a = a, window.b = b
   },
 });
 </script>

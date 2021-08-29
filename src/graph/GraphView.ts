@@ -7,6 +7,7 @@ import {
   drawEdge,
 } from './utils';
 import Node from './Node';
+import List from './List';
 import graph from './Global';
 
 export interface GraphViewOptions {
@@ -19,7 +20,7 @@ export default class GraphView {
   container!: HTMLElement;
   dataModel?: DataModel;
 
-  private ro!: any;
+  private _ro!: any;
 
   constructor(options: GraphViewOptions) {
     this.createLowerCanvas();
@@ -48,10 +49,10 @@ export default class GraphView {
         const datas = this.dataModel.getDatas();
         const selection = [];
         let selectedNode;
-        for (let i = 0; i < datas.length; i++) {
-          const data = datas[i];
+        for (let i = 0; i < datas.size(); i++) {
+          const data = datas.get(i);
           if (data.className === 'Node') {
-            const node = <Node>datas[i];
+            const node = <Node>datas.get(i);
             const bounds = node.getBounds();
             if (containsPoint(bounds, position.x, position.y)) {
               offset.x = position.x - node.x;
@@ -70,13 +71,15 @@ export default class GraphView {
     };
     const onMouseMove = (e: MouseEvent) => {
       if (this.dataModel) {
-        const selection = <Node[]>this.dataModel.getSelection();
+        const selection = <List<Node>>this.dataModel.getSelection();
         const position = getEventPosition(document.body, e);
-        if (selection.length > 0) {
-          for (const node of selection) {
-            node.x = position.x - offset.x;
-            node.y = position.y - offset.y;
-          }
+        if (selection.size() > 0) {
+          selection.each((node) => {
+            if (node) {
+              node.x = position.x - offset.x;
+              node.y = position.y - offset.y;
+            }
+          });
           this.renderAll();
         }
       }
@@ -90,12 +93,12 @@ export default class GraphView {
     const onMouseover = (event: MouseEvent) => {
       const position = getEventPosition(this.canvas, event);
       if (this.dataModel) {
-        const datas = this.dataModel.getDatas();
+        const datas = <List<Node>>this.dataModel.getDatas();
         let selectedNode;
-        for (let i = 0; i < datas.length; i++) {
-          const data = datas[i];
+        for (let i = 0; i < datas.size(); i++) {
+          const data = datas.get(i);
           if (data.className === 'Node') {
-            const node = <Node>datas[i];
+            const node = datas.get(i);
             const bounds = node.getBounds();
             if (containsPoint(bounds, position.x, position.y)) {
               selectedNode = node;
@@ -116,24 +119,26 @@ export default class GraphView {
   async renderAll() {
     if (this.dataModel) {
       const datas = this.dataModel.getDatas();
-      const imageToLoad = [];
-      for (let data of datas) {
+      const imageToLoad = new Set();
+      datas.each((data) => {
         const node = <Node>data;
         if (node.image && !graph.getImage(node.image)) {
-          imageToLoad.push(node.image);
+          imageToLoad.add(node.image);
         }
-      }
+      });
       this.context.save();
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       if (this.dataModel.background) {
         this.context.fillStyle = this.dataModel.background;
-        this.context.fillRect(0, 0 ,this.canvas.width, this.canvas.height);
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.restore();
       }
-      if (imageToLoad.length > 0) {
-        await graph.loadSymbol(imageToLoad);
-      }      
-      for (let data of datas) {
+      if (imageToLoad.size > 0) {
+        await graph.loadSymbol(Array.from(imageToLoad));
+      }
+      const size = datas.size();
+      for (let i = 0; i < size; i++) {
+        const data = datas.get(i);
         if (data.className === 'Node') {
           const node = <Node>data;
           const imageURL = node.image;
@@ -145,7 +150,7 @@ export default class GraphView {
               // 检查图标中是否有图片
               const imageList = comps.filter((v) => v.type === 'image');
               if (imageList.length > 0) {
-                await graph.loadImage(imageList);
+                await graph.loadImage(Array.from(new Set(imageList)));
                 node.imageLoaded = true;
               }
             }
@@ -155,10 +160,10 @@ export default class GraphView {
           drawEdge(this.context, data);
         }
       }
-      const selection = this.dataModel.getSelection();
-      for (const node of selection) {
+      const selection = <List<Node>>this.dataModel.getSelection();
+      selection.each((node) => {
         drawSlection(this, <Node>node);
-      }
+      });
       this.context.restore();
     }
   }
@@ -173,7 +178,7 @@ export default class GraphView {
     this.container = el || document.body;
     this.container.appendChild(this.canvas);
     // resize canvas
-    this.ro = new ResizeObserver((entries) => {
+    this._ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         const canvasWidth = Math.floor(width);
@@ -182,14 +187,16 @@ export default class GraphView {
         this.canvas.height = canvasHeight;
         this.canvas.style.width = canvasWidth + 'px';
         this.canvas.style.height = canvasHeight + 'px';
+        // TODO nexttick
         this.renderAll();
+        // TODO broadcast resize event
       }
     });
-    this.ro.observe(this.container);
+    this._ro.observe(this.container);
   }
 
   destory() {
-    this.ro.disconnect();
+    this._ro.disconnect();
   }
 
   private createLowerCanvas() {
