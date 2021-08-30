@@ -1,4 +1,4 @@
-export default class Constants {
+export default class {
   static defaultBorderColor = '#979797';
   static defaultBackgroundColor = 'transparent';
   static defaultBorderWidth = 1;
@@ -9,5 +9,7 @@ export default class Constants {
   static defaultBorderCap: CanvasLineCap = 'butt';
   static defaultFillRule: CanvasFillRule = 'evenodd';
   static defaultFontColor = 'black';
-  static defaultText = 'graph'
+  static defaultText = 'graph';
+  static defaultSymbolWidth = 100;
+  static defaultSymbolHeight = 100;
 }
