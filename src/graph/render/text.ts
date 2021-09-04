@@ -19,11 +19,15 @@ const getTextSize = (function () {
   };
 })();
 
+export default function renderText(ctx: CanvasRenderingContext2D, data: Text): void;
 
-export default function renderText(ctx: CanvasRenderingContext2D, data: Text, comp?: Comp) {
+export default function renderText(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
+export default function renderText(ctx: CanvasRenderingContext2D, data: any) {
   ctx.save();
   let x, y, width, height, text, font, color, align, vAlign;
-  if (comp) {
+  const comp = <Comp>data;
+  if (comp.type) {
     [x, y, width, height] = comp.rect!;
     ({ text, font, color, align, vAlign } = comp);
   } else {

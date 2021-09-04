@@ -1,23 +1,26 @@
 import Node from '../Node';
 import { setShapeStyle } from '../util';
 
+export default function renderTriangle(ctx: CanvasRenderingContext2D, node: Node): void;
+
+export default function renderTriangle(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
 export default function renderTriangle(
   ctx: CanvasRenderingContext2D,
-  node: Node,
-  comp?: Comp
+  data: any,
 ) {
   ctx.save();
   let x, y, width, height;
-  // 绘制图标
-  if (comp) {
-    [x, y, width, height] = comp.rect!;
-  } else {
-    // 绘制Node
+  const node = <Node>data;
+  if (node.className) {
     x = 0;
     y = 0;
     ({ width, height } = node.getSize());
+  } else {
+    const comp = <Comp>data;
+    [x, y, width, height] = comp.rect!;
   }
-  setShapeStyle(ctx, node, comp);
+  setShapeStyle(ctx, node);
   ctx.beginPath();
   ctx.moveTo(x + width / 2, y);
   ctx.lineTo(x + width, y + height);

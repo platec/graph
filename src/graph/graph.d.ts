@@ -36,6 +36,8 @@ interface Comp {
   arcTo?: number;
   arcClose?: boolean;
   name?: string;
+  anchorX?: number;
+  anchorY?: number;
 }
 
 // 图标类型

@@ -22,25 +22,20 @@ export class DefaultValue {
   static anchorY = 0.5
 }
 
+export function setShapeStyle(ctx: CanvasRenderingContext2D, node: Node|Shape): void;
+
+export function setShapeStyle(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
+
 /**
  * Shape基本样式设置
  * @param ctx
  * @param node
  * @param comp
  */
-export function setShapeStyle(ctx: CanvasRenderingContext2D, node: Node|Shape, comp?: Comp) {
-  // 图标内shape
-  if (comp) {
-    ctx.fillStyle = comp.background || DefaultValue.backgroundColor;
-    ctx.strokeStyle = comp.borderColor || DefaultValue.borderColor;
-    if (comp.borderWidth === undefined || comp.borderWidth < 0) {
-      ctx.lineWidth = 0;
-    } else {
-      ctx.lineWidth = comp.borderWidth;
-    }
-    ctx.lineJoin = comp.borderJoin || DefaultValue.borderJoin;
-    ctx.lineCap = comp.borderCap || DefaultValue.borderCap;
-  } else {
+export function setShapeStyle(ctx: CanvasRenderingContext2D, data: any) {
+  const node = <Node>data;
+  if (node.className) {
     ctx.fillStyle =
       node.getStyle('shape.background') || DefaultValue.backgroundColor;
     ctx.strokeStyle =
@@ -53,6 +48,17 @@ export function setShapeStyle(ctx: CanvasRenderingContext2D, node: Node|Shape, c
     }
     ctx.lineJoin = node.getStyle('shape.border.join') || DefaultValue.borderJoin;
     ctx.lineCap = node.getStyle('shape.border.cap') || DefaultValue.borderCap;
+  } else {
+    const comp = <Comp>data;
+    ctx.fillStyle = comp.background || DefaultValue.backgroundColor;
+    ctx.strokeStyle = comp.borderColor || DefaultValue.borderColor;
+    if (comp.borderWidth === undefined || comp.borderWidth < 0) {
+      ctx.lineWidth = 0;
+    } else {
+      ctx.lineWidth = comp.borderWidth;
+    }
+    ctx.lineJoin = comp.borderJoin || DefaultValue.borderJoin;
+    ctx.lineCap = comp.borderCap || DefaultValue.borderCap;
   }
 }
 

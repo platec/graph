@@ -17,23 +17,28 @@ function convertListToPointList(list: number[]) {
   return pointList;
 }
 
+export default function renderShape(ctx: CanvasRenderingContext2D, shape: Shape): void;
+
+export default function renderShape(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
 export default function renderShape(
   ctx: CanvasRenderingContext2D,
-  shape: Shape,
-  comp?: Comp
+  data: any
 ) {
   ctx.save();
   // 图标内不规则图形
   let segments, closePath, pointList: Point[];
-  if (comp) {
-    ({ segments, closePath } = comp);
-    pointList = convertListToPointList(comp.points!);
-  } else {
+  const shape = <Shape>data;
+  const comp = <Comp>data;
+  if (shape.className) {
     pointList = shape.getPoints();
     segments = shape.getSegments();
     closePath = shape.isClosePath();
+  } else {
+    ({ segments, closePath } = comp);
+    pointList = convertListToPointList(comp.points!);    
   }
-  setShapeStyle(ctx, shape, comp);
+  setShapeStyle(ctx, shape);
   ctx.beginPath();
   if (segments && segments.length > 0) {
     const count = segments.length;
@@ -83,12 +88,12 @@ export default function renderShape(
     }
   }
   const borderWidth =
-    (comp ? comp.borderWidth : shape.getStyle('shape.border.width')) || 0;
+    (!shape.className ? comp.borderWidth : shape.getStyle('shape.border.width')) || 0;
   if (borderWidth !== 0) {
     ctx.lineWidth = borderWidth;
     ctx.stroke();
   }
-  const background = comp
+  const background = !shape.className
     ? comp.background
     : shape.getStyle('shape.background');
   const fillRule =

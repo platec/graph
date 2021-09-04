@@ -16,8 +16,6 @@ function getEdgeEndPoint(edge: Edge, type: string) {
   const { x, y } = data.getPostion();
   const { width, height } = data.getSize();
   const { x: dataAnchorX, y: dataAnchorY } = data.getAnchor();
-  // console.log(edge)
-  // console.log(x, y, width, height, dataAnchorX, dataAnchorY, anchorX, anchorY);
   return {
     x: x - width * dataAnchorX + width * anchorX,
     y: y - height * dataAnchorY + height * anchorY,

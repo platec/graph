@@ -1,27 +1,26 @@
 import Data from '../Data';
 import Node from '../Node';
 import Text from '../Text';
-import Edge from '../Edge';
-import Shape from '../Shape';
-import renderText from './text';
-import renderEdge from './edge';
-import renderShape from './shape';
-import { DefaultValue, getImage } from '../util';
-import { renderNode } from './node';
+import { getImage } from '../util';
+
+
+export function strokeAndFill(ctx: CanvasRenderingContext2D, node: Node): void;
+export function strokeAndFill(ctx: CanvasRenderingContext2D, comp: Comp): void;
 
 export function strokeAndFill(
   ctx: CanvasRenderingContext2D,
-  data: Node,
-  comp?: any
+  data: any
 ) {
-  if (comp) {
-    if (comp.borderWidth !== undefined) {
-      ctx.stroke();
-    }
-  } else {
+  const node = <Node>data;
+  if (node.className) {
     const node = <Node>data;
     const width = node.getStyle('shape.border.width');
     if (width !== undefined) {
+      ctx.stroke();
+    }
+  } else {
+    const comp = <Comp>data;
+    if (comp.borderWidth !== undefined) {
       ctx.stroke();
     }
   }
@@ -60,25 +59,5 @@ export function drawSlection(ctx: CanvasRenderingContext2D, data: Data) {
   ctx.strokeStyle = '#60ACFC';
   ctx.stroke();
   ctx.closePath();
-  ctx.restore();
-}
-
-export function renderData(ctx: CanvasRenderingContext2D, data: Data) {
-  const className = data.className;
-  ctx.save();
-  switch (className) {
-    case 'Node':
-      renderNode(ctx, <Node>data);
-      break;
-    case 'Edge':
-      renderEdge(ctx, <Edge>data);
-      break;
-    case 'Text':
-      renderText(ctx, <Text>data);
-      break;
-    case 'Shape':
-      renderShape(ctx, <Shape>data);
-      break;
-  }
   ctx.restore();
 }

@@ -2,6 +2,11 @@ import { strokeAndFill } from '.';
 import Node from '../Node';
 import { setShapeStyle } from '../util';
 
+export default function renderRect(ctx: CanvasRenderingContext2D, node: Node): void;
+
+export default function renderRect(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
+
 /**
  * 渲染矩形
  * @param ctx
@@ -10,22 +15,22 @@ import { setShapeStyle } from '../util';
  */
 export default function renderRect(
   ctx: CanvasRenderingContext2D,
-  node: Node,
-  comp?: Comp
+  data: any,
 ) {
   ctx.save();
   let x, y, width, height;
-  // 图标内的组件
-  if (comp) {
-    [x, y, width, height] = comp.rect!;
-  } else {
+  const node = <Node>data;
+  if (node.className) {
     x = 0, y = 0;
     ({ width, height } = node.getSize());
+  } else {
+    const comp = <Comp>data;
+    [x, y, width, height] = comp.rect!;
   }
-  setShapeStyle(ctx, node, comp);
+  setShapeStyle(ctx, data);
   ctx.beginPath();
   ctx.rect(x, y, width, height);
   ctx.closePath();  
-  strokeAndFill(ctx, node, comp);
+  strokeAndFill(ctx, data);
   ctx.restore();
 }

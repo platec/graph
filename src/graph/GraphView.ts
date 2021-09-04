@@ -2,6 +2,7 @@ import Node from './Node';
 import List from './List';
 import Data from './Data';
 import Shape from './Shape';
+import Text from './Text';
 import {
   setImage,
   getClass,
@@ -9,14 +10,24 @@ import {
   getImage,
   getEventPosition,
   containsPoint,
+  DefaultValue,
 } from './util';
 import Notifier from './Notifier';
-import { drawSlection, renderData } from './render';
+import { beforeRenderNodeData, drawSlection } from './render';
 import Point from './Point';
+import renderEdge from './render/edge';
+import Edge from './Edge';
+import renderText from './render/text';
+import renderShape from './render/shape';
+import renderRect from './render/rect';
+import renderArc from './render/arc';
+import renderTriangle from './render/triangle';
+import renderCircle from './render/circle';
+import renderOval from './render/oval';
+import renderImage from './render/image';
 
 export interface GraphViewOptions {
   editable?: boolean;
-  convertURL?: (url: string) => string;
 }
 
 export default class GraphView {
@@ -25,11 +36,11 @@ export default class GraphView {
   private _container!: HTMLElement;
   private _dataList = new List<Data>();
   private _notifier = new Notifier();
-  private _convertURL = (url: string) => url;
   private _background?: string;
   private _dataMap = new Map<number, Data>();
   private _lastId = 0;
   private _selection = new List<Data>();
+  static convertURL = (url: string) => url;
 
   private _ro!: any;
 
@@ -37,9 +48,6 @@ export default class GraphView {
     this.createLowerCanvas();
     if (options.editable) {
       this._initEventListeners();
-    }
-    if (options.convertURL) {
-      this._convertURL = options.convertURL;
     }
     this._notifier.on('render', () => {
       this.render();
@@ -69,7 +77,7 @@ export default class GraphView {
    * @param url
    */
   async load(url: string) {
-    const json = await this._loadResource(url);
+    const json = await GraphView.loadResource(url);
     this._deserialize(json);
   }
 
@@ -267,28 +275,13 @@ export default class GraphView {
     if (this._background) {
       this._context.fillStyle = this._background;
       this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
-      this._context.restore();      
+      this._context.restore();
     }
     const dataList = this.getDataList();
     const count = dataList.size();
     for (let i = 0; i < count; i++) {
       const data = dataList.get(i);
-      // @ts-ignore
-      if (!data.getImage || !data.getImage() || getImage(data.getImage())) {
-        renderData(this._context, data);
-      } else {
-        // @ts-ignore
-        const node = <Node>data;
-        if (node.getImage) {
-          const image = node.getImage();
-          console.log(image)
-          if (!getImage(image)) {
-            this._loadImage([image]).then(() => {
-              this.render();
-            });
-          }
-        }
-      }
+      this._renderData(data);
     }
     const selection = this.getSelection();
     selection.each((data) => {
@@ -296,6 +289,130 @@ export default class GraphView {
         drawSlection(this._context, data);
       }
     });
+  }
+
+  private _renderData(data: Data) {
+    const className = data.className;
+    const ctx = this._context;
+    ctx.save();
+    switch (className) {
+      case 'Node':
+        this._renderNode(<Node>data);
+        break;
+      case 'Edge':
+        this._renderEdge(<Edge>data);
+        break;
+      case 'Text':
+        this._renderText(<Text>data);
+        break;
+      case 'Shape':
+        this._renderShape(<Shape>data);
+        break;
+    }
+    ctx.restore();
+  }
+
+  private _renderNode(data: Node) {
+    const image = data.getImage();
+    const shape = data.getStyle('shape');
+    if (image && !getImage(image)) {
+      GraphView.loadImage([image]).then(() => {
+        this.update();
+      });
+      return;
+    }
+    beforeRenderNodeData(this._context, data);
+    if (!image && shape) {
+      this._renderBasicShape(shape, data);
+    } else if (image) {
+      // 图标或图片
+      if (!image.endsWith('.json')) {
+        renderImage(this._context, data);
+      } else {
+        this._renderSymbolImage(image, data);
+      }
+    }
+  }
+
+  private _renderBasicShape(type: string, data: any) {
+    switch (type) {
+      case 'rect':
+        renderRect(this._context, data);
+        break;
+      case 'circle':
+        renderCircle(this._context, data);
+        break;
+      case 'oval':
+        renderOval(this._context, data);
+        break;
+      case 'triangle':
+        renderTriangle(this._context, data);
+        break;
+      case 'arc':
+        renderArc(this._context, data);
+        break;
+      case 'text':
+        renderText(this._context, data);
+        break;
+      case 'image':
+        if (data.name && data.name.endsWith('.json')) {
+          this._renderSymbolImage(data.name, data);
+        } else {
+          renderImage(this._context, data);
+        }
+        break;
+      case 'shape':
+        renderShape(this._context, data);
+        break;
+    }
+  }
+
+  private _renderSymbolImage(image: string, node: Node, comp?: Comp) {
+    const imageCache = getImage(image);
+    const comps: Comp[] = imageCache.comps;
+    this._context.save();
+    if (comp && imageCache) {
+      const [x, y, width, height] = comp.rect!;
+      this._context.translate(x, y);
+      const scaleX = width / imageCache.width;
+      const scaleY = height / imageCache.height;
+      this._context.scale(scaleX, scaleY);
+    }
+
+    if (comps) {
+      for (const cp of comps) {
+        if (cp.type !== 'image') {
+          this._renderBasicShape(cp.type, cp);
+        } else {
+          const name = cp.name!;
+          const imageCache = getImage(name);
+          if (!imageCache) {
+            GraphView.loadImage([name]).then(() => {
+              this.update();
+            });
+            continue;
+          }
+          if (name.endsWith('.json')) {
+            this._renderSymbolImage(name, node, cp);
+          } else {
+            renderImage(this._context, cp);
+          }
+        }
+      }
+    }
+    this._context.restore();
+  }
+
+  private _renderEdge(data: Edge) {
+    renderEdge(this._context, data);
+  }
+
+  private _renderText(data: Text) {
+    renderText(this._context, data);
+  }
+
+  private _renderShape(data: Shape) {
+    renderShape(this._context, data);
   }
 
   private _renderSelection() {}
@@ -343,8 +460,8 @@ export default class GraphView {
    * @param display
    * @returns
    */
-  private async _loadResource(display: string) {
-    const url = this._convertURL(display);
+  static async loadResource(display: string) {
+    const url = GraphView.convertURL(display);
     const resp = await fetch(url, {
       method: 'GET',
     });
@@ -357,11 +474,11 @@ export default class GraphView {
    * @param imageList
    * @returns
    */
-  private async _loadImage(imageList: string[]) {
+  static async loadImage(imageList: string[]) {
     const loadList = imageList.map((image) => {
       return new Promise((resolve: (p: void) => void) => {
         if (image.endsWith('.json')) {
-          this._loadResource(image).then((json) => {
+          this.loadResource(image).then((json) => {
             setImage(image, json);
             resolve();
           });
@@ -374,7 +491,7 @@ export default class GraphView {
           if (image.startsWith('data:image')) {
             img.src = image;
           } else {
-            img.src = this._convertURL(image);
+            img.src = GraphView.convertURL(image);
           }
         }
       });

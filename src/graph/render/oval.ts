@@ -3,15 +3,21 @@ import Node from '../Node';
 import { setShapeStyle } from '../util';
 
 
-export default function renderOval(ctx: CanvasRenderingContext2D, node: Node, comp?: Comp) {
+export default function renderOval(ctx: CanvasRenderingContext2D, node: Node): void;
+
+export default function renderOval(ctx: CanvasRenderingContext2D, comp: Comp): void;
+
+export default function renderOval(ctx: CanvasRenderingContext2D, data: any) {
   ctx.save();
   let x, y, width, height;
-  if (comp) {
-    [x, y, width, height] = comp.rect!;
-  } else {
+  const node = <Node>data;
+  if (node.className) {
     x = 0;
     y = 0;
     ({ width, height } = node.getSize());
+  } else {
+    const comp = <Comp>data;
+    [x, y, width, height] = comp.rect!;
   }
   const radiusX = width / 2;
   const radiusY = height / 2;
@@ -24,7 +30,7 @@ export default function renderOval(ctx: CanvasRenderingContext2D, node: Node, co
   ctx.closePath();
   ctx.restore();
   ctx.save();
-  setShapeStyle(ctx, node, comp);
-  strokeAndFill(ctx, node, comp);
+  setShapeStyle(ctx, node);
+  strokeAndFill(ctx, node);
   ctx.restore();
  }
