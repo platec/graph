@@ -1,24 +1,5 @@
 import Data from './Data';
 
-
-export function getEdgeStyle(styleMap: any) {
-  const style: any = {};
-  for (const name in styleMap) {
-    const value = styleMap[name];
-    switch (name) {
-      case 'edge.segments':
-      case 'edge.points':
-        style[name] = value.__a;
-        break;
-      default:
-        style[name] = value;
-        break;
-    }
-  }
-  return style;
-}
-
-
 export default class Edge extends Data {
   readonly className = 'Edge';
   private _styleMap = new Map();
@@ -32,8 +13,7 @@ export default class Edge extends Data {
   setStyle(style: any, value?: any) {
     if (value !== undefined && typeof style === 'string') {
       this._styleMap.set(style, value);
-    }
-    if (style && Object.keys(style).length > 0) {
+    } else if (typeof style === 'object' && Object.keys(style).length > 0) {
       for (const key in style) {
         this._styleMap.set(key, style[key]);
       }

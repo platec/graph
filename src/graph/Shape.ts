@@ -10,81 +10,90 @@ export default class Shape extends Data {
   private _styleMap = new Map();
   private _segments: number[] = [];
   private _points: Point[] = [];
+  private _anchorX = 0.5;
+  private _anchorY = 0.5;    
 
   constructor() {
     super();
   }
 
-  public get x() {
-    return this._x;
+  getPostion() {
+    return {
+      x: this._x,
+      y: this._y,
+    };
   }
 
-  public set x(x) {
-    this._x = x;
+  setPosition(position: Point) {
+    this._x = position.x;
+    this._y = position.y;
     this.update();
   }
 
-  public get y() {
-    return this._y;
-  }
-
-  public set y(y) {
-    this._y = y;
-    this.update();
-  }
-
-  public get width() {
+  getWidth() {
     return this._width;
   }
 
-  public set width(width) {
+  setWidth(width: number) {
     this._width = width;
     this.update();
   }
 
-  public get height() {
+  getHeight() {
     return this._height;
   }
 
-  public set height(height) {
+  setHeight(height: number) {
     this._height = height;
     this.update();
   }
 
-  public get segments() {
-    return this._segments;
-  }
-
-  public set segments(segments) {
-    this._segments = segments;
-    this.update();
-  }
-
-  public get points() {
+  getPoints() {
     return this._points;
   }
 
-  public set points(points) {
+  setPoints(points: Point[]) {
     this._points = points;
     this.update();
   }
 
-  public get closePath() {
+  getSegments() {
+    return this._segments;
+  }
+
+  setSegments(segments: number[]) {
+    this._segments = segments;
+    this.update();
+  }
+
+  isClosePath() {
+    if (this._closePath === undefined) {
+      return true;
+    }
     return this._closePath;
   }
 
-  public set closePath(closePath) {
+  setClosePath(closePath: boolean) {
     this._closePath = closePath;
     this.update();
   }
 
-  public getBounds() {
+  getRect() {
+    // TODO 根据中心点计算
     return {
-      x: this.x - this.width / 2,
-      y: this.y - this.height / 2,
-      width: this.width,
-      height: this.height,
-    };
+      x: this._x - this._width / 2,
+      y: this._y - this._height / 2,
+      width: this._width,
+      height: this._height,      
+    }
+  }
+
+  setRect(x: number, y: number, width: number, height: number) {
+    this._x = x;
+    this._y = y;
+    this._width = width;
+    this._height = height;
+    this.update();
   }
 
   setStyle(style: any, value?: any) {
@@ -102,4 +111,17 @@ export default class Shape extends Data {
   getStyle(name: string) {
     return this._styleMap.get(name);
   }
+
+  getAnchor() {
+    return {
+      x: this._anchorX,
+      y: this._anchorY
+    };
+  }
+
+  setAnchor(anchor: Point) {
+    this._anchorX = anchor.x;
+    this._anchorY = anchor.y;
+    this.update();
+  }  
 }

@@ -16,7 +16,7 @@ export default class Notifier {
     return this;
   }
 
-  off(event: string | Array<string>, fn: Function) {
+  off(event: string | Array<string>, fn?: Function) {
     if (!arguments.length) {
       this._events = Object.create(null);
       return this;
@@ -73,10 +73,14 @@ export default class Notifier {
   emitNextTick(event: string) {
     if (!this._isWaiting) {
       this._isWaiting = true;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.emit(event);
         this._isWaiting = false;
-      });
+      }, 0);
+      // requestAnimationFrame(() => {
+      //   this.emit(event);
+      //   this._isWaiting = false;
+      // });
     }
   }
 }

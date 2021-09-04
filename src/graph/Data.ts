@@ -1,24 +1,28 @@
-import DataModel from './DataModel';
+import Notifier from './Notifier';
 
 export default class Data {
-  dataModel?: DataModel;;
   className = 'Data';
-  private _id!: number;
+  private _notifier?: Notifier;;
+  private _id?: number;
 
   constructor() {
   }
 
-  public get id() {
+  getId() {
     return this._id;
   }
 
-  public set id(id) {
+  setId(id: number) {
     this._id = id;
-  }  
+  }
+
+  setNotifier(notifier: Notifier) {
+    this._notifier = notifier;
+  }
 
   update() {
-    if (this.dataModel) {
-      this.dataModel.emitNextTick('renderAll');
+    if (this._notifier) {
+      this._notifier.emitNextTick('render');
     }
   }
 }
