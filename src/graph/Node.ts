@@ -5,13 +5,14 @@ export default class Node extends Data {
   readonly className = 'Node';
   private _x = 0;
   private _y = 0;
-  private _width? = 0;
-  private _height? = 0;
-  private _image = '';
+  private _width?: number;
+  private _height?: number;
+  private _image?: string;
   private _displayName = '';
   private _styleMap = new Map();
   private _anchorX = 0.5;
   private _anchorY = 0.5;
+  private _rotation?: number;
 
   constructor() {
     super();
@@ -67,8 +68,8 @@ export default class Node extends Data {
   }
 
   getSize() {
-    if (this._width === undefined || this._height === undefined) {
-      const imageCache = <DisplayImage>getImage(this.getImage());
+    if ((this._width === undefined || this._height === undefined)) {
+      const imageCache = <DisplayImage>getImage(this.getImage()!);
       return {
         width: imageCache.width,
         height: imageCache.height,
@@ -132,6 +133,15 @@ export default class Node extends Data {
   setAnchor(anchor: Point) {
     this._anchorX = anchor.x;
     this._anchorY = anchor.y;
+    this.update();
+  }
+
+  getRotation() {
+    return this._rotation;
+  }
+
+  setRotation(rotation: number) {
+    this._rotation = rotation;
     this.update();
   }
 }

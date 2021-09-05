@@ -38,6 +38,7 @@ interface Comp {
   name?: string;
   anchorX?: number;
   anchorY?: number;
+  rotation?: number;
 }
 
 // 图标类型

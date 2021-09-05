@@ -1,4 +1,5 @@
 import Data from './Data';
+import { DefaultValue } from './util';
 
 export default class Text extends Data {
   readonly className = 'Text';
@@ -8,7 +9,8 @@ export default class Text extends Data {
   private _height = 0;
   private _styleMap = new Map();
   private _anchorX = 0.5;
-  private _anchorY = 0.5;  
+  private _anchorY = 0.5;
+  private _rotation?: number;
 
   constructor() {
     super();
@@ -58,12 +60,16 @@ export default class Text extends Data {
   }
 
   getRect() {
-    // TODO 根据中心点计算
+    const { x, y } = this.getPostion();
+    const { width, height } = this.getSize();
+    let { x: anchorX, y: anchorY } = this.getAnchor();
+    anchorX = anchorX === undefined ? DefaultValue.anchorX : anchorX;
+    anchorY = anchorY === undefined ? DefaultValue.anchorY : anchorY;
     return {
-      x: this._x - this._width / 2,
-      y: this._y - this._height / 2,
-      width: this._width,
-      height: this._height,
+      x: x - width * anchorX,
+      y: y - height * anchorY,
+      width,
+      height,
     };
   }
 
@@ -93,7 +99,7 @@ export default class Text extends Data {
   getAnchor() {
     return {
       x: this._anchorX,
-      y: this._anchorY
+      y: this._anchorY,
     };
   }
 
@@ -101,5 +107,14 @@ export default class Text extends Data {
     this._anchorX = anchor.x;
     this._anchorY = anchor.y;
     this.update();
-  }  
+  }
+
+  getRotation() {
+    return this._rotation;
+  }
+
+  setRotation(rotation: number) {
+    this._rotation = rotation;
+    this.update();
+  }
 }

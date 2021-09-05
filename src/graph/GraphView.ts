@@ -11,9 +11,10 @@ import {
   getEventPosition,
   containsPoint,
   DefaultValue,
+  rotatePoint,
 } from './util';
 import Notifier from './Notifier';
-import { beforeRenderNodeData, drawSlection } from './render';
+import { beforeRenderNodeData, drawSlection, rotateData } from './render';
 import Point from './Point';
 import renderEdge from './render/edge';
 import Edge from './Edge';
@@ -96,11 +97,22 @@ export default class GraphView {
         for (let i = 0; i < datas.size(); i++) {
           const data = datas.get(i);
           if (data.className !== 'Edge') {
-            // @ts-ignore
-            const bounds = data.getRect();
+            const node = <Node>data;
+            let rotation = node.getRotation();
             // @ts-ignore
             const { x, y } = data.getPostion();
-            if (containsPoint(bounds, position.x, position.y)) {
+            let cx = position.x;
+            let cy = position.y;
+            if (rotation) {
+              ({ x: cx, y: cy } = rotatePoint(
+                position,
+                node.getPostion(),
+                -1 * rotation
+              ));
+            }
+            // @ts-ignore
+            const bounds = data.getRect();
+            if (containsPoint(bounds, cx, cy)) {
               // @ts-ignore
               offset.x = position.x - x;
               // @ts-ignore
@@ -167,9 +179,19 @@ export default class GraphView {
       for (let i = 0; i < datas.size(); i++) {
         const data = datas.get(i);
         if (data.className !== 'Edge') {
-          // @ts-ignore
-          const bounds = data.getRect();
-          if (containsPoint(bounds, position.x, position.y)) {
+          const node = <Node>data;
+          let rotation = node.getRotation();
+          let cx = position.x;
+          let cy = position.y;
+          if (rotation) {
+            ({ x: cx, y: cy } = rotatePoint(
+              position,
+              node.getPostion(),
+              -1 * rotation
+            ));
+          }
+          const bounds = node.getRect();
+          if (containsPoint(bounds, cx, cy)) {
             selectedNode = data;
             break;
           }
@@ -381,6 +403,17 @@ export default class GraphView {
 
     if (comps) {
       for (const cp of comps) {
+        // 图标内元素的旋转
+        if (cp.rotation) {
+          const [x, y, width, height] = cp.rect!;
+          const anchorX = cp.anchorX || DefaultValue.anchorX;
+          const anchorY = cp.anchorY || DefaultValue.anchorY;          
+          const cx = x + width * anchorX;
+          const cy = y + height * anchorY;
+          this._context.translate(cx, cy);
+          this._context.rotate(cp.rotation);
+          this._context.translate(-cx, -cy);
+        }
         if (cp.type !== 'image') {
           this._renderBasicShape(cp.type, cp);
         } else {
@@ -404,7 +437,23 @@ export default class GraphView {
   }
 
   private _renderEdge(data: Edge) {
-    renderEdge(this._context, data);
+    // 检查连线两端Node的image是否加载完成
+    const source = <Node>data.getSource();
+    const target = <Node>data.getTarget();
+    const imageList: string[] = [];
+    if (source.getImage && source.getImage() && !getImage(source.getImage()!)) {
+      imageList.push(source.getImage()!);
+    }
+    if (target.getImage && target.getImage() && !getImage(target.getImage()!)) {
+      imageList.push(target.getImage()!);
+    }
+    if (imageList.length > 0) {
+      GraphView.loadImage(imageList).then(() => {
+        this.update();
+      });
+    } else {
+      renderEdge(this._context, data);
+    }
   }
 
   private _renderText(data: Text) {
@@ -412,10 +461,9 @@ export default class GraphView {
   }
 
   private _renderShape(data: Shape) {
+    rotateData(this._context, data);
     renderShape(this._context, data);
   }
-
-  private _renderSelection() {}
 
   fitContent() {}
 

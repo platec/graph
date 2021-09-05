@@ -1,16 +1,13 @@
 import Data from '../Data';
 import Node from '../Node';
+import Shape from '../Shape';
 import Text from '../Text';
 import { getImage } from '../util';
-
 
 export function strokeAndFill(ctx: CanvasRenderingContext2D, node: Node): void;
 export function strokeAndFill(ctx: CanvasRenderingContext2D, comp: Comp): void;
 
-export function strokeAndFill(
-  ctx: CanvasRenderingContext2D,
-  data: any
-) {
+export function strokeAndFill(ctx: CanvasRenderingContext2D, data: any) {
   const node = <Node>data;
   if (node.className) {
     const node = <Node>data;
@@ -28,6 +25,22 @@ export function strokeAndFill(
 }
 
 /**
+ * 旋转图形
+ * @param ctx 
+ * @param data 
+ */
+export function rotateData(ctx: CanvasRenderingContext2D, data: Node|Text|Shape) {
+  const rotation = data.getRotation();
+  if (rotation) {
+    const { x: centerX, y: centerY } = data.getPostion();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.translate(-centerX, -centerY);
+  }
+}
+
+
+/**
  * 位置、缩放、角度处理
  * @param ctx
  * @param data
@@ -36,6 +49,7 @@ export function beforeRenderNodeData(
   ctx: CanvasRenderingContext2D,
   data: Node | Text
 ) {
+  rotateData(ctx, data);
   const { x, y, width, height } = data.getRect();
   ctx.translate(x, y);
   if (data.className === 'Node') {
@@ -53,6 +67,16 @@ export function drawSlection(ctx: CanvasRenderingContext2D, data: Data) {
   // @ts-ignore
   const { x, y, width, height } = data.getRect();
   ctx.save();
+  const node = <Node>data;
+  if (node.getRotation) {
+    const rotation = node.getRotation();
+    if (rotation) {
+      const { x: centerX, y: centerY } = node.getPostion();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
+      ctx.translate(-centerX, -centerY);
+    }
+  }
   ctx.beginPath();
   ctx.rect(x, y, width, height);
   ctx.lineWidth = 1;

@@ -1,6 +1,6 @@
 import Edge from '../Edge';
 import Node from '../Node';
-import { DefaultValue } from '../util';
+import { DefaultValue, rotatePoint } from '../util';
 
 function getEdgeEndPoint(edge: Edge, type: string) {
   let anchorX, anchorY, data;
@@ -23,8 +23,8 @@ function getEdgeEndPoint(edge: Edge, type: string) {
 }
 
 export default function renderEdge(ctx: CanvasRenderingContext2D, edge: Edge) {
-  const source = edge.getSource();
-  const target = edge.getTarget();
+  const source = <Node>edge.getSource();
+  const target = <Node>edge.getTarget();
   if (source && target) {
     ctx.save();
     ctx.beginPath();
@@ -35,8 +35,16 @@ export default function renderEdge(ctx: CanvasRenderingContext2D, edge: Edge) {
     ctx.lineJoin = join || DefaultValue.borderJoin;
     ctx.lineWidth = width <= 0 ? 1 : width;
     ctx.lineCap = cap || DefaultValue.borderCap;
-    const sourcePoint = getEdgeEndPoint(edge, 'source');
-    const targetPoint = getEdgeEndPoint(edge, 'target');
+    let sourcePoint = getEdgeEndPoint(edge, 'source');
+    let targetPoint = getEdgeEndPoint(edge, 'target');
+    const sourceRotation = source.getRotation();
+    const targetRotation = target.getRotation();
+    if (sourceRotation) {
+      sourcePoint = rotatePoint(sourcePoint, source.getPostion(), sourceRotation);
+    }
+    if (targetRotation) {
+      targetPoint = rotatePoint(targetPoint, target.getPostion(), targetRotation);
+    }
     const segments = <number[]>edge.getStyle('edge.segments');
     if (segments) {
       const points = [...(<Point[]>edge.getStyle('edge.points'))];

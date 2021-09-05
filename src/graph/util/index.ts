@@ -153,6 +153,19 @@ export function containsPoint(bounds: BoundingRect, x: number, y: number) {
   );
 }
 
+/**
+ * 点绕一点旋转后的坐标
+ * @param p 
+ * @param cp 
+ */
+export function rotatePoint(p: Point, cp: Point, rotation: number) {
+  const x = (p.x - cp.x) * Math.cos(rotation) - (p.y - cp.y) * Math.sin(rotation) + cp.x;
+  const y = (p.x - cp.x) * Math.sin(rotation) + (p.y - cp.y) * Math.cos(rotation) + cp.y;
+  return {
+    x,
+    y
+  };
+}
 
 export default {
   getImage,

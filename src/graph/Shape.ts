@@ -1,4 +1,5 @@
 import Data from './Data';
+import { DefaultValue } from './util';
 
 export default class Shape extends Data {
   readonly className = 'Shape';
@@ -11,7 +12,8 @@ export default class Shape extends Data {
   private _segments: number[] = [];
   private _points: Point[] = [];
   private _anchorX = 0.5;
-  private _anchorY = 0.5;    
+  private _anchorY = 0.5;
+  private _rotation?: number;
 
   constructor() {
     super();
@@ -78,14 +80,30 @@ export default class Shape extends Data {
     this.update();
   }
 
-  getRect() {
-    // TODO 根据中心点计算
+  getSize() {
     return {
-      x: this._x - this._width / 2,
-      y: this._y - this._height / 2,
       width: this._width,
-      height: this._height,      
-    }
+      height: this._height,
+    };
+  }
+
+  setSize(width: number, height: number) {
+    this._width = width;
+    this._height = height;
+  }  
+
+  getRect() {
+    const { x, y } = this.getPostion();
+    const { width, height } = this.getSize();
+    let { x: anchorX, y: anchorY } = this.getAnchor();
+    anchorX = anchorX === undefined ? DefaultValue.anchorX : anchorX;
+    anchorY = anchorY === undefined ? DefaultValue.anchorY : anchorY;
+    return {
+      x: x - width * anchorX,
+      y: y - height * anchorY,
+      width,
+      height,
+    };
   }
 
   setRect(x: number, y: number, width: number, height: number) {
@@ -115,7 +133,7 @@ export default class Shape extends Data {
   getAnchor() {
     return {
       x: this._anchorX,
-      y: this._anchorY
+      y: this._anchorY,
     };
   }
 
@@ -123,5 +141,14 @@ export default class Shape extends Data {
     this._anchorX = anchor.x;
     this._anchorY = anchor.y;
     this.update();
-  }  
+  }
+
+  getRotation() {
+    return this._rotation;
+  }
+
+  setRotation(rotation: number) {
+    this._rotation = rotation;
+    this.update();
+  }
 }
