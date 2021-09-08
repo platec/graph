@@ -13,6 +13,8 @@ export default class Node extends Data {
   private _anchorX = 0.5;
   private _anchorY = 0.5;
   private _rotation?: number;
+  private _scaleX = 1;
+  private _scaleY = 1;
 
   constructor() {
     super();
@@ -68,7 +70,7 @@ export default class Node extends Data {
   }
 
   getSize() {
-    if ((this._width === undefined || this._height === undefined)) {
+    if (this._width === undefined || this._height === undefined) {
       const imageCache = <DisplayImage>getImage(this.getImage()!);
       return {
         width: imageCache.width,
@@ -92,15 +94,17 @@ export default class Node extends Data {
     let { x: anchorX, y: anchorY } = this.getAnchor();
     anchorX = anchorX === undefined ? DefaultValue.anchorX : anchorX;
     anchorY = anchorY === undefined ? DefaultValue.anchorY : anchorY;
+    const { x: scaleX, y: scaleY } = this.getScale();
     return {
-      x: x - width * anchorX,
-      y: y - height * anchorY,
-      width,
-      height,
+      x: x - width * Math.abs(scaleX) * anchorX,
+      y: y - height * Math.abs(scaleY) * anchorY,
+      width: width * Math.abs(scaleX),
+      height: height * Math.abs(scaleY),
     };
   }
 
   setRect(x: number, y: number, width: number, height: number) {
+    // TODO
     this._x = x;
     this._y = y;
     this._width = width;
@@ -143,5 +147,36 @@ export default class Node extends Data {
   setRotation(rotation: number) {
     this._rotation = rotation;
     this.update();
+  }
+
+  setScale(scale: Point) {
+    this._scaleX = scale.x;
+    this._scaleY = scale.y;
+    this.update();
+  }
+
+  getScale() {
+    return {
+      x: this._scaleX,
+      y: this._scaleY,
+    };
+  }
+
+  setScaleX(x: number) {
+    this._scaleX = x;
+    this.update();
+  }
+
+  setScaleY(y: number) {
+    this._scaleY = y;
+    this.update();
+  }
+
+  getScaleX() {
+    return this._scaleX;
+  }
+
+  getScaleY() {
+    return this._scaleY;
   }
 }

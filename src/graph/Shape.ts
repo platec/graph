@@ -14,6 +14,8 @@ export default class Shape extends Data {
   private _anchorX = 0.5;
   private _anchorY = 0.5;
   private _rotation?: number;
+  private _scaleX = 1;
+  private _scaleY = 1;
 
   constructor() {
     super();
@@ -90,7 +92,7 @@ export default class Shape extends Data {
   setSize(width: number, height: number) {
     this._width = width;
     this._height = height;
-  }  
+  }
 
   getRect() {
     const { x, y } = this.getPostion();
@@ -150,5 +152,36 @@ export default class Shape extends Data {
   setRotation(rotation: number) {
     this._rotation = rotation;
     this.update();
+  }
+
+  setScale(x: number, y: number) {
+    this._scaleX = x;
+    this._scaleY = y;
+    this.update();
+  }
+
+  getScale() {
+    return {
+      x: this._scaleX,
+      y: this._scaleY,
+    };
+  }
+
+  setScaleX(x: number) {
+    this._scaleX = x;
+    this.update();
+  }
+
+  setScaleY(y: number) {
+    this._scaleY = y;
+    this.update();
+  }
+
+  getScaleX() {
+    return this._scaleX;
+  }
+
+  getScaleY() {
+    return this._scaleY;
   }
 }

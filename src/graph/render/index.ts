@@ -26,10 +26,13 @@ export function strokeAndFill(ctx: CanvasRenderingContext2D, data: any) {
 
 /**
  * 旋转图形
- * @param ctx 
- * @param data 
+ * @param ctx
+ * @param data
  */
-export function rotateData(ctx: CanvasRenderingContext2D, data: Node|Text|Shape) {
+export function rotateData(
+  ctx: CanvasRenderingContext2D,
+  data: Node | Text | Shape
+) {
   const rotation = data.getRotation();
   if (rotation) {
     const { x: centerX, y: centerY } = data.getPostion();
@@ -39,6 +42,23 @@ export function rotateData(ctx: CanvasRenderingContext2D, data: Node|Text|Shape)
   }
 }
 
+/**
+ * 缩放图形
+ * @param ctx
+ * @param data
+ */
+export function scaleData(
+  ctx: CanvasRenderingContext2D,
+  data: Node | Text | Shape
+) {
+  const { x, y } = data.getScale();
+  if (x !== 1 || y !== 1) {
+    const { x: cx, y: cy } = data.getPostion();
+    ctx.translate(cx, cy)
+    ctx.scale(x, y);
+    ctx.translate(-cx, -cy);
+  }
+}
 
 /**
  * 位置、缩放、角度处理
@@ -49,6 +69,7 @@ export function beforeRenderNodeData(
   ctx: CanvasRenderingContext2D,
   data: Node | Text
 ) {
+  scaleData(ctx, data);
   rotateData(ctx, data);
   const { x, y, width, height } = data.getRect();
   ctx.translate(x, y);
@@ -58,25 +79,17 @@ export function beforeRenderNodeData(
       const imageCache = getImage(image);
       const scaleX = width / imageCache.width;
       const scaleY = height / imageCache.height;
+      // const {x: cx, y: cy} = data.getPostion();
       ctx.scale(scaleX, scaleY);
     }
   }
 }
 
 export function drawSlection(ctx: CanvasRenderingContext2D, data: Data) {
-  // @ts-ignore
-  const { x, y, width, height } = data.getRect();
-  ctx.save();
   const node = <Node>data;
-  if (node.getRotation) {
-    const rotation = node.getRotation();
-    if (rotation) {
-      const { x: centerX, y: centerY } = node.getPostion();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(rotation);
-      ctx.translate(-centerX, -centerY);
-    }
-  }
+  const { x, y, width, height } = node.getRect();
+  ctx.save();
+  rotateData(ctx, node);
   ctx.beginPath();
   ctx.rect(x, y, width, height);
   ctx.lineWidth = 1;
