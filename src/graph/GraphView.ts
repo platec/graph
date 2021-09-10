@@ -15,6 +15,7 @@ import {
 } from './util';
 import Notifier from './Notifier';
 import {
+  beforeRenderComp,
   beforeRenderNodeData,
   drawSlection,
   rotateData,
@@ -35,6 +36,8 @@ import renderImage from './render/image';
 export interface GraphViewOptions {
   editable?: boolean;
 }
+
+const imageLoading = new Map<string, boolean>();
 
 export default class GraphView {
   private _canvas!: HTMLCanvasElement;
@@ -405,42 +408,13 @@ export default class GraphView {
       const scaleY = height / imageCache.height;
       this._context.scale(scaleX, scaleY);
     }
-
     if (comps) {
       for (const cp of comps) {
-        this._context.save();
-        const anchorX = cp.anchorX || DefaultValue.anchorX;
-        const anchorY = cp.anchorY || DefaultValue.anchorY;
-        // 图标内元素的旋转
-        if (cp.rotation) {
-          const [x, y, width, height] = cp.rect!;
-          const cx = x + width * anchorX;
-          const cy = y + height * anchorY;
-          this._context.translate(cx, cy);
-          this._context.rotate(cp.rotation);
-          this._context.translate(-cx, -cy);
-        }
-        // 图标内元素缩放
-        const scaleX = cp.scaleX || DefaultValue.scaleX;
-        const scaleY = cp.scaleY || DefaultValue.scaleY;
-        if (scaleX !== 1 || scaleY !== 1) {
-          const [x, y, width, height] = cp.rect!;
-          const cx = x + width * anchorX;
-          const cy = y + height * anchorY;
-          let tx = cx,
-            ty = cy;
-          if (scaleX < 0) {
-            tx = x + width / (1 - scaleX);
-          }
-          if (scaleY < 0) {
-            ty = y + height / (1 - scaleY);
-          }
-          this._context.translate(tx, ty);
-          this._context.scale(scaleX, scaleY);
-          this._context.translate(-tx, -ty);
-        }
         if (cp.type !== 'image') {
+          this._context.save();
+          beforeRenderComp(this._context, cp);
           this._renderBasicShape(cp.type, cp);
+          this._context.restore();
         } else {
           const name = cp.name!;
           const imageCache = getImage(name);
@@ -451,12 +425,17 @@ export default class GraphView {
             continue;
           }
           if (name.endsWith('.json')) {
+            this._context.save();
+            beforeRenderComp(this._context, cp);
             this._renderSymbolImage(name, node, cp);
+            this._context.restore();
           } else {
+            this._context.save();
+            beforeRenderComp(this._context, cp);
             renderImage(this._context, cp);
+            this._context.restore();
           }
         }
-        this._context.restore();
       }
     }
     this._context.restore();
@@ -544,22 +523,28 @@ export default class GraphView {
   }
 
   /**
-   * 加载图片
+   * 加载图片/图标
    * @param imageList
    * @returns
    */
   static async loadImage(imageList: string[]) {
-    const loadList = imageList.map((image) => {
+    const imageToLoad = imageList.filter((v) => {
+      return imageLoading.get(v) !== true;
+    });
+    const loadList = imageToLoad.map((image) => {
       return new Promise((resolve: (p: void) => void) => {
+        imageLoading.set(image, true);
         if (image.endsWith('.json')) {
           this.loadResource(image).then((json) => {
             setImage(image, json);
+            imageLoading.delete(image);
             resolve();
           });
         } else {
           const img = new Image();
           img.onload = () => {
             setImage(image, img);
+            imageLoading.delete(image);
             resolve();
           };
           if (image.startsWith('data:image')) {

@@ -2,7 +2,7 @@ import Data from '../Data';
 import Node from '../Node';
 import Shape from '../Shape';
 import Text from '../Text';
-import { getImage, rotatePoint } from '../util';
+import { DefaultValue, getImage } from '../util';
 
 export function strokeAndFill(ctx: CanvasRenderingContext2D, node: Node): void;
 export function strokeAndFill(ctx: CanvasRenderingContext2D, comp: Comp): void;
@@ -89,6 +89,39 @@ export function beforeRenderNodeData(
       const scaleY = height / imageCache.height;
       ctx.scale(scaleX, scaleY);
     }
+  }
+}
+
+export function beforeRenderComp(ctx: CanvasRenderingContext2D, cp: Comp) {
+  const anchorX = cp.anchorX || DefaultValue.anchorX;
+  const anchorY = cp.anchorY || DefaultValue.anchorY;
+  // 图标内元素的旋转
+  if (cp.rotation) {
+    const [x, y, width, height] = cp.rect!;
+    const cx = x + width * anchorX;
+    const cy = y + height * anchorY;
+    ctx.translate(cx, cy);
+    ctx.rotate(cp.rotation);
+    ctx.translate(-cx, -cy);
+  }
+  // 图标内元素缩放
+  const scaleX = cp.scaleX || DefaultValue.scaleX;
+  const scaleY = cp.scaleY || DefaultValue.scaleY;
+  if (scaleX !== 1 || scaleY !== 1) {
+    const [x, y, width, height] = cp.rect!;
+    const cx = x + width * anchorX;
+    const cy = y + height * anchorY;
+    let tx = cx,
+      ty = cy;
+    if (scaleX < 0) {
+      tx = x + width / (1 - scaleX);
+    }
+    if (scaleY < 0) {
+      ty = y + height / (1 - scaleY);
+    }
+    ctx.translate(tx, ty);
+    ctx.scale(scaleX, scaleY);
+    ctx.translate(-tx, -ty);
   }
 }
 
