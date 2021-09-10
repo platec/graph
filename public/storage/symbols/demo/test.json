@@ -1,5 +1,5 @@
 {
-  "modified": "Sun Sep 05 2021 18:56:45 GMT+0800 (中国标准时间)",
+  "modified": "Fri Sep 10 2021 20:40:37 GMT+0800 (GMT+08:00)",
   "width": 200,
   "height": 140,
   "comps": [
@@ -1062,6 +1062,7 @@
       "type": "image",
       "name": "symbols/demo/test2.json",
       "displayName": "test2",
+      "scaleY": -1,
       "rect": [
         44.25043,
         10.73964,

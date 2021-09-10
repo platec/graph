@@ -2,7 +2,7 @@ import Data from '../Data';
 import Node from '../Node';
 import Shape from '../Shape';
 import Text from '../Text';
-import { getImage } from '../util';
+import { getImage, rotatePoint } from '../util';
 
 export function strokeAndFill(ctx: CanvasRenderingContext2D, node: Node): void;
 export function strokeAndFill(ctx: CanvasRenderingContext2D, comp: Comp): void;
@@ -53,10 +53,18 @@ export function scaleData(
 ) {
   const { x, y } = data.getScale();
   if (x !== 1 || y !== 1) {
-    const { x: cx, y: cy } = data.getPostion();
-    ctx.translate(cx, cy)
+    const { x: rx, y: ry, width, height } = data.getRect();
+    let tx = rx,
+      ty = ry;
+    if (x < 0) {
+      tx = rx + width / (1 - x);
+    }
+    if (y < 0) {
+      ty = ry + height / (1 - y);
+    }
+    ctx.translate(tx, ty);
     ctx.scale(x, y);
-    ctx.translate(-cx, -cy);
+    ctx.translate(-tx, -ty);
   }
 }
 
@@ -69,8 +77,8 @@ export function beforeRenderNodeData(
   ctx: CanvasRenderingContext2D,
   data: Node | Text
 ) {
-  scaleData(ctx, data);
   rotateData(ctx, data);
+  scaleData(ctx, data);
   const { x, y, width, height } = data.getRect();
   ctx.translate(x, y);
   if (data.className === 'Node') {
@@ -79,7 +87,6 @@ export function beforeRenderNodeData(
       const imageCache = getImage(image);
       const scaleX = width / imageCache.width;
       const scaleY = height / imageCache.height;
-      // const {x: cx, y: cy} = data.getPostion();
       ctx.scale(scaleX, scaleY);
     }
   }

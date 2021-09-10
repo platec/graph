@@ -39,6 +39,8 @@ interface Comp {
   anchorX?: number;
   anchorY?: number;
   rotation?: number;
+  scaleX?: number;
+  scaleY?: number;
 }
 
 // 图标类型

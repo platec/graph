@@ -14,7 +14,12 @@ import {
   rotatePoint,
 } from './util';
 import Notifier from './Notifier';
-import { beforeRenderNodeData, drawSlection, rotateData } from './render';
+import {
+  beforeRenderNodeData,
+  drawSlection,
+  rotateData,
+  scaleData,
+} from './render';
 import Point from './Point';
 import renderEdge from './render/edge';
 import Edge from './Edge';
@@ -403,16 +408,36 @@ export default class GraphView {
 
     if (comps) {
       for (const cp of comps) {
+        this._context.save();
+        const anchorX = cp.anchorX || DefaultValue.anchorX;
+        const anchorY = cp.anchorY || DefaultValue.anchorY;
         // 图标内元素的旋转
         if (cp.rotation) {
           const [x, y, width, height] = cp.rect!;
-          const anchorX = cp.anchorX || DefaultValue.anchorX;
-          const anchorY = cp.anchorY || DefaultValue.anchorY;          
           const cx = x + width * anchorX;
           const cy = y + height * anchorY;
           this._context.translate(cx, cy);
           this._context.rotate(cp.rotation);
           this._context.translate(-cx, -cy);
+        }
+        // 图标内元素缩放
+        const scaleX = cp.scaleX || DefaultValue.scaleX;
+        const scaleY = cp.scaleY || DefaultValue.scaleY;
+        if (scaleX !== 1 || scaleY !== 1) {
+          const [x, y, width, height] = cp.rect!;
+          const cx = x + width * anchorX;
+          const cy = y + height * anchorY;
+          let tx = cx,
+            ty = cy;
+          if (scaleX < 0) {
+            tx = x + width / (1 - scaleX);
+          }
+          if (scaleY < 0) {
+            ty = y + height / (1 - scaleY);
+          }
+          this._context.translate(tx, ty);
+          this._context.scale(scaleX, scaleY);
+          this._context.translate(-tx, -ty);
         }
         if (cp.type !== 'image') {
           this._renderBasicShape(cp.type, cp);
@@ -431,6 +456,7 @@ export default class GraphView {
             renderImage(this._context, cp);
           }
         }
+        this._context.restore();
       }
     }
     this._context.restore();

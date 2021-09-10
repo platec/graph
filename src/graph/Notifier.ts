@@ -73,14 +73,14 @@ export default class Notifier {
   emitNextTick(event: string) {
     if (!this._isWaiting) {
       this._isWaiting = true;
-      setTimeout(() => {
-        this.emit(event);
-        this._isWaiting = false;
-      }, 0);
-      // requestAnimationFrame(() => {
+      // setTimeout(() => {
       //   this.emit(event);
       //   this._isWaiting = false;
-      // });
+      // }, 0);
+      requestAnimationFrame(() => {
+        this.emit(event);
+        this._isWaiting = false;
+      });
     }
   }
 }

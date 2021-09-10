@@ -1,8 +1,7 @@
 import Node from '../Node';
-import Text from '../Text'
+import Text from '../Text';
 import Edge from '../Edge';
 import Shape from '../Shape';
-
 
 export class DefaultValue {
   static borderColor = '#979797';
@@ -19,13 +18,17 @@ export class DefaultValue {
   static symbolWidth = 100;
   static symbolHeight = 100;
   static anchorX = 0.5;
-  static anchorY = 0.5
+  static anchorY = 0.5;
+  static scaleX = 1;
+  static scaleY = 1;
 }
 
-export function setShapeStyle(ctx: CanvasRenderingContext2D, node: Node|Shape): void;
+export function setShapeStyle(
+  ctx: CanvasRenderingContext2D,
+  node: Node | Shape
+): void;
 
 export function setShapeStyle(ctx: CanvasRenderingContext2D, comp: Comp): void;
-
 
 /**
  * Shape基本样式设置
@@ -46,7 +49,8 @@ export function setShapeStyle(ctx: CanvasRenderingContext2D, data: any) {
     } else {
       ctx.lineWidth = borderWidth;
     }
-    ctx.lineJoin = node.getStyle('shape.border.join') || DefaultValue.borderJoin;
+    ctx.lineJoin =
+      node.getStyle('shape.border.join') || DefaultValue.borderJoin;
     ctx.lineCap = node.getStyle('shape.border.cap') || DefaultValue.borderCap;
   } else {
     const comp = <Comp>data;
@@ -66,13 +70,13 @@ const classMap: any = {
   Node,
   Text,
   Edge,
-  Shape
-}
+  Shape,
+};
 
 /**
  * 获取图形类
- * @param className 
- * @returns 
+ * @param className
+ * @returns
  */
 export function getClass(className: string): any {
   return classMap[className];
@@ -83,7 +87,7 @@ export function getClass(className: string): any {
  * @param p1
  * @param p2
  */
- export function unionPoint(p1: Point, p2: Point) {
+export function unionPoint(p1: Point, p2: Point) {
   if (p1 && p2) {
     return {
       x: Math.min(p1.x, p2.x),
@@ -99,8 +103,8 @@ const imageCache = new Map<string, any>();
 
 /**
  * 缓存图片、图标
- * @param name 
- * @param image 
+ * @param name
+ * @param image
  */
 export function setImage(name: string, image: any) {
   imageCache.set(name, image);
@@ -108,8 +112,8 @@ export function setImage(name: string, image: any) {
 
 /**
  * 获取图片、图标缓存
- * @param name 
- * @returns 
+ * @param name
+ * @returns
  */
 export function getImage(name: string) {
   return imageCache.get(name);
@@ -117,7 +121,7 @@ export function getImage(name: string) {
 
 /**
  * 属性名转换为对应的方法名
- * @param name 
+ * @param name
  */
 export function propNameToMethod(name: string) {
   return 'set' + name.charAt(0).toUpperCase() + name.slice(1);
@@ -155,19 +159,25 @@ export function containsPoint(bounds: BoundingRect, x: number, y: number) {
 
 /**
  * 点绕一点旋转后的坐标
- * @param p 
- * @param cp 
+ * @param p
+ * @param cp
  */
 export function rotatePoint(p: Point, cp: Point, rotation: number) {
-  const x = (p.x - cp.x) * Math.cos(rotation) - (p.y - cp.y) * Math.sin(rotation) + cp.x;
-  const y = (p.x - cp.x) * Math.sin(rotation) + (p.y - cp.y) * Math.cos(rotation) + cp.y;
+  const x =
+    (p.x - cp.x) * Math.cos(rotation) -
+    (p.y - cp.y) * Math.sin(rotation) +
+    cp.x;
+  const y =
+    (p.x - cp.x) * Math.sin(rotation) +
+    (p.y - cp.y) * Math.cos(rotation) +
+    cp.y;
   return {
     x,
-    y
+    y,
   };
 }
 
 export default {
   getImage,
-  setImage
-}
+  setImage,
+};

@@ -3,19 +3,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import graph from '@/graph';
-import GraphView from './graph/GraphView';
+import { defineComponent } from "vue";
+import graph from "@/graph";
+import GraphView from "./graph/GraphView";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {},
   async mounted() {
     GraphView.convertURL = (url) => `storage/${url}`;
     const gv = new graph.GraphView({
-      editable: true
+      editable: true,
     });
-    gv.load('displays/basic.json');
+    gv.load("displays/basic.json");
     gv.mount(<HTMLDivElement>this.$refs.container);
     // @ts-ignore
     window.gv = gv;
