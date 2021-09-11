@@ -10,7 +10,6 @@ import {
   getImage,
   getEventPosition,
   containsPoint,
-  DefaultValue,
   rotatePoint,
 } from './util';
 import Notifier from './Notifier';
@@ -19,7 +18,6 @@ import {
   beforeRenderNodeData,
   drawSlection,
   rotateData,
-  scaleData,
 } from './render';
 import Point from './Point';
 import renderEdge from './render/edge';
@@ -49,6 +47,8 @@ export default class GraphView {
   private _dataMap = new Map<number, Data>();
   private _lastId = 0;
   private _selection = new List<Data>();
+  private _scale = 1; // 图纸缩放
+  private _position?: Point;
   static convertURL = (url: string) => url;
 
   private _ro!: any;
@@ -95,6 +95,35 @@ export default class GraphView {
       x: 0,
       y: 0,
     };
+
+    // 图纸缩放
+    this._canvas.addEventListener('wheel', (e: WheelEvent) => {
+      e.preventDefault();
+      const { x, y } = getEventPosition(document.body, e);
+      const { x: vx, y: vy } = this.getPosition();
+      const mousePointTo = {
+        x: (x - vx) / this._scale,
+        y: (y - vy) / this._scale,
+      };
+      const scaleBy = 0.01;
+      let scale = 1;
+      const minScale = 0.01;
+      const maxScale = 20;
+      if (e.deltaY && e.deltaY > 0) {
+        scale =
+          this._scale - scaleBy >= minScale ? this._scale - scaleBy : minScale;
+      } else if (e.deltaY && e.deltaY < 0) {
+        scale =
+          this._scale + scaleBy <= maxScale ? this._scale + scaleBy : maxScale;
+      }
+      this._scale = scale;
+      const newPos = {
+        x: x - mousePointTo.x * scale,
+        y: y - mousePointTo.y * scale,
+      };
+      this._zoomView();
+      this._position = new Point(newPos.x, newPos.y);
+    });
 
     const onMouseDown = (e: MouseEvent) => {
       const position = getEventPosition(document.body, e);
@@ -294,19 +323,54 @@ export default class GraphView {
   }
 
   render() {
+    console.log('%crender', 'color:green');
     this._renderAllData();
+  }
+
+  clear() {
+    this._context.save();
+    this._context.setTransform(1, 0, 0, 1, 0, 0);
+    this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this._context.restore();
+  }
+
+  getPosition() {
+    if (!this._position) {
+      return {
+        x: this._canvas.width / 2,
+        y: this._canvas.height / 2,
+      };
+    }
+    return this._position;
+  }
+
+  // 图纸缩放
+  private _zoomView() {
+    const position = this.getPosition();
+    this._context.save();
+    this._context.translate(position.x, position.y);
+    this._context.scale(this._scale, this._scale);
+    this._context.translate(-position.x, -position.y);
+    this._renderAllData();
+    this._context.restore();
+  }
+
+  private _renderBackground() {
+    if (this._background) {
+      this._context.save();
+      this._context.fillStyle = this._background;
+      this._context.setTransform(1, 0, 0, 1, 0, 0);
+      this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+      this._context.restore();
+    }
   }
 
   /**
    * 渲染全部图形
    */
   private _renderAllData() {
-    this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-    if (this._background) {
-      this._context.fillStyle = this._background;
-      this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
-      this._context.restore();
-    }
+    this.clear();
+    this._renderBackground();
     const dataList = this.getDataList();
     const count = dataList.size();
     for (let i = 0; i < count; i++) {
@@ -485,7 +549,7 @@ export default class GraphView {
         this._canvas.height = canvasHeight;
         this._canvas.style.width = canvasWidth + 'px';
         this._canvas.style.height = canvasHeight + 'px';
-        this.render();
+        this._renderAllData();
       }
     });
     this._ro.observe(this._container);

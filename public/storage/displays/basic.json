@@ -14,8 +14,8 @@
         "displayName": "album",
         "image": "symbols/demo/album.json",
         "position": {
-          "x": 516.89864,
-          "y": 574.84676
+          "x": 520.78141,
+          "y": 604.79466
         },
         "width": 398.45096,
         "height": 398.45096
@@ -143,13 +143,12 @@
       "p": {
         "displayName": "jiang",
         "image": "assets/jiang.png",
-        "rotation": 0.45196,
         "position": {
           "x": 1472.16832,
           "y": 310.86036
         },
         "scale": {
-          "x": -1.92,
+          "x": 1,
           "y": 1
         },
         "width": 110.53794,
@@ -160,9 +159,14 @@
       "c": "ht.Node",
       "i": 1200,
       "p": {
+        "rotation": 0.61087,
         "position": {
-          "x": 1415.00229,
-          "y": 774.07224
+          "x": 1564.93254,
+          "y": 757.19617
+        },
+        "scale": {
+          "x": 1,
+          "y": -1
         },
         "width": 296.06638,
         "height": 126.37703,
@@ -341,8 +345,8 @@
         "displayName": "test2",
         "image": "symbols/demo/test2.json",
         "position": {
-          "x": 1623.76346,
-          "y": 717.40161
+          "x": 1588.16527,
+          "y": 604.79466
         },
         "width": 121.45597,
         "height": 121.45597
@@ -422,11 +426,11 @@
       }
     }
   ],
-  "modified": "Fri Sep 10 2021 20:50:11 GMT+0800 (GMT+08:00)",
+  "modified": "Fri Sep 10 2021 22:11:26 GMT+0800 (GMT+08:00)",
   "contentRect": {
     "x": 201.94436,
     "y": 5.99512,
     "width": 1588.34504,
-    "height": 839.26563
+    "height": 895.87039
   }
 }
