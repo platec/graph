@@ -1,11 +1,10 @@
-import { beforeRenderNodeData } from '.';
 import Text from '../Text';
-import {DefaultValue} from '../util';
+import { DefaultValue } from '../util';
 
-const getTextSize = (function () {
+const getTextSize = (function() {
   const heightCache: any = {};
   const context = document.createElement('canvas').getContext('2d');
-  return function (font: string, text: string) {
+  return function(font: string, text: string) {
     context!.font = font;
     let height = heightCache[context!.font];
     if (!height) {
@@ -19,9 +18,15 @@ const getTextSize = (function () {
   };
 })();
 
-export default function renderText(ctx: CanvasRenderingContext2D, data: Text): void;
+export default function renderText(
+  ctx: CanvasRenderingContext2D,
+  data: Text
+): void;
 
-export default function renderText(ctx: CanvasRenderingContext2D, comp: Comp): void;
+export default function renderText(
+  ctx: CanvasRenderingContext2D,
+  comp: Comp
+): void;
 
 export default function renderText(ctx: CanvasRenderingContext2D, data: any) {
   ctx.save();
@@ -31,7 +36,6 @@ export default function renderText(ctx: CanvasRenderingContext2D, data: any) {
     [x, y, width, height] = comp.rect!;
     ({ text, font, color, align, vAlign } = comp);
   } else {
-    beforeRenderNodeData(ctx, <Text>data);
     x = 0;
     y = 0;
     ({ width, height } = data.getSize());

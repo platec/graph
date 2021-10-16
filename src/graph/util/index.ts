@@ -21,6 +21,7 @@ export class DefaultValue {
   static anchorY = 0.5;
   static scaleX = 1;
   static scaleY = 1;
+  static identityMatrix = [1, 0, 0, 1, 0, 0];
 }
 
 export function setShapeStyle(

@@ -1,18 +1,19 @@
+interface GraphViewOptions {
+  editable?: boolean;
+  imageSmoothingEnabled?: boolean;
+}
 interface ImageCompConfig {
   name: string;
   displayName: string;
 }
-
 interface Point {
   x: number;
   y: number;
 }
-
 interface Size {
   width: number;
   height: number;
 }
-
 // 组件内图形
 interface Comp {
   type: string;

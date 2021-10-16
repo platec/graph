@@ -67,11 +67,12 @@ export default class Text extends Data {
     let { x: anchorX, y: anchorY } = this.getAnchor();
     anchorX = anchorX === undefined ? DefaultValue.anchorX : anchorX;
     anchorY = anchorY === undefined ? DefaultValue.anchorY : anchorY;
+    const { x: scaleX, y: scaleY } = this.getScale();
     return {
-      x: x - width * anchorX,
-      y: y - height * anchorY,
-      width,
-      height,
+      x: x - width * Math.abs(scaleX) * anchorX,
+      y: y - height * Math.abs(scaleY) * anchorY,
+      width: width * Math.abs(scaleX),
+      height: height * Math.abs(scaleY),
     };
   }
 
@@ -120,9 +121,9 @@ export default class Text extends Data {
     this.update();
   }
 
-  setScale(x: number, y: number) {
-    this._scaleX = x;
-    this._scaleY = y;
+  setScale(scale: Point) {
+    this._scaleX = scale.x;
+    this._scaleY = scale.y;
     this.update();
   }
 
