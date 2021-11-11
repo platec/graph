@@ -109,6 +109,7 @@ export function rotateComp(ctx: CanvasRenderingContext2D, cp: Comp) {
   const anchorY = cp.anchorY || DefaultValue.anchorY;
   if (cp.rotation) {
     const [x, y, width, height] = cp.rect!;
+    console.log(anchorX, anchorY);
     const cx = x + width * anchorX;
     const cy = y + height * anchorY;
     ctx.translate(cx, cy);
@@ -198,6 +199,8 @@ function renderBasicShape(
  */
 function renderNodeShape(ctx: CanvasRenderingContext2D, data: Node) {
   const nodeShape = data.getStyle('shape');
+  rotateData(ctx, data);
+  transformData(ctx, data);
   renderBasicShape(ctx, data, nodeShape);
 }
 
@@ -208,6 +211,13 @@ function renderCompShape(ctx: CanvasRenderingContext2D, data: Comp) {
 
 function scaleImage(ctx: CanvasRenderingContext2D, data: any) {
   let width, height, x, y, imageCache;
+  if (data.getScale) {
+    const { x, y } = data.getScale();
+    // TODO
+    if (x !== 1 || y !== 1) {
+      return;
+    }
+  }
   if (data.getImage) {
     const image = data.getImage();
     ({ x, y, width, height } = data.getRect());
@@ -215,14 +225,15 @@ function scaleImage(ctx: CanvasRenderingContext2D, data: any) {
   } else {
     imageCache = getImage(data.name!);
     [x, y, width, height] = data.rect!;
-    x = x + width / 2;
-    y = y + height / 2;
   }
-  ctx.translate(x, y);
   const scaleX = width / imageCache.width;
   const scaleY = height / imageCache.height;
+  ctx.translate(x, y);
   ctx.scale(scaleX, scaleY);
-  ctx.translate(-x, -y);
+  // TODO
+  if (data.getScale) {
+    ctx.translate(-x, -y);
+  }
 }
 
 /**
@@ -240,16 +251,16 @@ function renderNodeImage(
   const imageCache = getImage(image);
   const comps = imageCache.comps;
   ctx.save();
-  if (imageCache.comps) {
-    rotateComp(ctx, data);
-    transformComp(ctx, data);
-  } else {
+  if (data.getImage) {
     rotateData(ctx, data);
+    if (comps) {
+      scaleImage(ctx, data);
+    }
     transformData(ctx, data);
-  }
-
-  if (comps) {
-    scaleImage(ctx, data);
+  } else {
+    if (comps) {
+      scaleImage(ctx, data);
+    }
   }
   // 加载图标
   if (comps) {
@@ -265,9 +276,13 @@ function renderNodeImage(
         const name = cp.name!;
         const imageCache = getImage(name);
         if (!imageCache) {
-          GraphView.loadImage([name]).then(() => {
-            gv.update();
-          });
+          GraphView.loadImage([name])
+            .then(() => {
+              gv.update();
+            })
+            .catch(() => {
+              // do nothing
+            });
           continue;
         }
         if (!imageCache.comps) {
@@ -278,6 +293,8 @@ function renderNodeImage(
           ctx.restore();
         } else {
           ctx.save();
+          rotateComp(ctx, cp);
+          transformComp(ctx, cp);
           renderNodeImage(ctx, gv, cp);
           ctx.restore();
         }
@@ -324,27 +341,27 @@ export function renderNode(
   gv: GraphView,
   data: Node
 ) {
-  const nodeShape = data.getStyle('shape');
-  // 展示基础图形的Node
-  if (nodeShape) {
-    ctx.save();
-    rotateData(ctx, data);
-    transformData(ctx, data);
-    renderNodeShape(ctx, data);
-    ctx.restore();
-  } else {
-    // 展示图片或者图标文件的Node
-    const image = data.getImage();
-    if (image) {
-      const imageCache = getImage(image);
-      if (imageCache) {
-        renderNodeImage(ctx, gv, data);
-      } else {
-        GraphView.loadImage([image]).then(() => {
-          gv.update();
+  // 展示图片或者图标文件的Node
+  const image = data.getImage();
+  if (image) {
+    const imageCache = getImage(image);
+    if (!imageCache) {
+      GraphView.loadImage([image])
+        .then(() => {
+          gv.render();
+        })
+        .catch(() => {
+          // do nothing
         });
-      }
+      return;
     }
+  }
+  // 根据图标设置的宽高再次缩放
+  if (image) {
+    renderNodeImage(ctx, gv, data);
+  } else {
+    // 展示基础图形的Node
+    renderNodeShape(ctx, data);
   }
 }
 

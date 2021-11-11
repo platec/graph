@@ -43,13 +43,17 @@ export default class GraphView extends Notifier {
     this._createCanvas();
     this._initOptions();
     this._notifier.on('render', () => {
+      console.log('tick');
       this.render();
     });
   }
 
   private _initOptions() {
-    this._context.imageSmoothingEnabled = this._imageSmoothingEnabled =
-      this._options.imageSmoothingEnabled || false;
+    const imageSmoothingEnabled =
+      this._options.imageSmoothingEnabled === undefined
+        ? true
+        : this._options.imageSmoothingEnabled;
+    this._context.imageSmoothingEnabled = this._imageSmoothingEnabled = imageSmoothingEnabled;
   }
 
   private _createCanvas() {
@@ -92,6 +96,9 @@ export default class GraphView extends Notifier {
     const imageToLoad = imageList.filter((v) => {
       return imageLoading.get(v) !== true;
     });
+    if (imageToLoad.length === 0) {
+      return Promise.reject();
+    }
     const loadList = imageToLoad.map((image) => {
       return new Promise((resolve: (p: void) => void) => {
         imageLoading.set(image, true);
@@ -258,6 +265,8 @@ export default class GraphView extends Notifier {
 
   private _renderData(ctx: CanvasRenderingContext2D, data: Data) {
     const className = data.className;
+    ctx.save();
+
     // 绘制图形
     switch (className) {
       case 'Node': {
@@ -269,22 +278,19 @@ export default class GraphView extends Notifier {
         break;
       }
       case 'Text': {
-        ctx.save();
         rotateData(ctx, <Text>data);
         transformData(ctx, <Text>data);
         renderText(ctx, <Text>data);
-        ctx.restore();
         break;
       }
       case 'Shape': {
-        ctx.save();
         rotateData(ctx, <Shape>data);
         transformData(ctx, <Shape>data);
         renderShape(ctx, <Shape>data);
-        ctx.restore();
         break;
       }
     }
+    ctx.restore();
   }
 
   setViewportTransform(t: number[]) {

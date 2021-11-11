@@ -14,6 +14,7 @@ export default defineComponent({
     GraphView.convertURL = (url) => `http://em.site:5888/${url}`;
     const gv = new graph.GraphView({
       editable: true,
+      imageSmoothingEnabled: true,
     });
     gv.load('displays/test.json');
     gv.mount(<HTMLDivElement>this.$refs.container);
